@@ -1,9 +1,9 @@
-﻿import { ValidationPipe } from "@nestjs/common";
+﻿import "dotenv/config"
+import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import express, { NextFunction, Request, Response } from "express";
 import { AppModule } from "./app.module.js";
-import env from "dotenv";
-env.config()
+
 
 const port = process.env.PORT;
 const clientPrefix = process.env.CLIENT_PREFIX as string;
@@ -49,15 +49,28 @@ async function bootstrap() {
   const jsonParser = express.json();
   const urlencodedParser = express.urlencoded({ extended: true });
 
+
   app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.path.startsWith("/api/v1/auth")) {
+    if (req.originalUrl.startsWith(`${clientPrefix}/auth`)) {
       return next();
     }
-    jsonParser(req, res, (err: unknown) => {
-      if (err) return next(err as Error);
-      urlencodedParser(req, res, next);
-    });
+  // app.use((req: Request, res: Response, next: NextFunction) => {
+  //   if (req.path.startsWith("/api/v1/auth")) {
+  //     return next();
+  //   }
+
+  jsonParser(req, res, (err) => {
+    if (err) return next(err);
+    urlencodedParser(req, res, next);
   });
+
+    // jsonParser(req, res, (err: unknown) => {
+    //   if (err) return next(err as Error);
+    //   urlencodedParser(req, res, next);
+    // });
+  });
+
+  
 
   await app.listen(port ?? 3000,() => {
     console.log(`Server started on port ${port}`);
