@@ -44,23 +44,20 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import "dotenv/config";
 
+
+// process.env.DATABASE_URL || 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private pgPool: pg.Pool;
 
   constructor() {
-    // 1. Fetch your connection string configuration
-    const databaseUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
+    const databaseUrl =process.env.DATABASE_URL_UNPOOLED;
     
     if (!databaseUrl) {
       throw new Error("Critical Configuration Failure: Neither DATABASE_URL nor DATABASE_URL_UNPOOLED environment variables are set.");
     }
-
-    // 2. Fix: Parse the connection string fields cleanly to build a native configuration block.
-    // This stops the pg package from misinterpreting raw string parameters like sslmode or channel_binding.
     const pool = new pg.Pool({ 
       connectionString: databaseUrl,
-      // Fix: Direct explicit configuration overrides to ensure strong TLS encryption while bypassing local hostname verification loops
       ssl: {
         rejectUnauthorized: false,
       },
@@ -68,13 +65,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       idleTimeoutMillis: 30000,       // Recycle idle connection workers after 30 seconds
       connectionTimeoutMillis: 10000, // Allow up to 10 seconds for initial handshakes
     });
-    
-    // Catch background pool errors cleanly
+
     pool.on('error', (err) => {
       console.warn('Neon connection pool worker encountered an idle exception:', err.message);
     });
 
-    // 3. Bind the clean driver adapter block into the Prisma 7 engine
     const adapter = new PrismaPg(pool);
 
     super({ adapter });

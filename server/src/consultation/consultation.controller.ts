@@ -3,7 +3,7 @@
   Get,
   Post,
   Param,
-  Query,
+  Body,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -52,7 +52,12 @@ export class ConsultationController {
   async processAudio(
     @UploadedFile() file: Express.Multer.File,
     @User() user: { id: string },
-    @Query("patientIdentifier") patientIdentifier?: string,
+    @Body("mrn") mrn?: string,
+    @Body("firstName") firstName?: string,
+    @Body("lastName") lastName?: string,
+    @Body("gender") gender?: string,
+    @Body("dateOfBirth") dateOfBirth?: string,
+    @Body("phone") phone?: string,
   ) {
     if (!file) {
       throw new BadRequestException("No audio file provided");
@@ -63,7 +68,7 @@ export class ConsultationController {
       file.mimetype,
       file.originalname,
       user.id,
-      patientIdentifier,
+      { mrn, firstName, lastName, gender, dateOfBirth, phone },
     );
   }
 

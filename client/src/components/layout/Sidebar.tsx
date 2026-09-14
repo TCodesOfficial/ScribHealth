@@ -41,7 +41,7 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
         `}
       >
         {/* Header */}
-        <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 flex items-center justify-between overflow-hidden">
+        <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-between overflow-hidden">
           <div className="flex items-center gap-2 min-w-0">
             <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-[20px] shrink-0" title="MetroHealth General">
               local_hospital
@@ -108,7 +108,7 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
         </nav>
 
         {/* Footer */}
-        <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-850/50">
+        <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-900">
           {/* Theme toggle */}
           {!isCollapsed ? (
             <ThemeToggle variant="switch" />

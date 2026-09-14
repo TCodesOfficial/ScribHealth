@@ -22,7 +22,9 @@ apiClient.interceptors.response.use(
       window.dispatchEvent(new CustomEvent('auth:unauthorized'))
     }
     const serverMessage = error.response?.data?.message || error.message
-    return Promise.reject(Object.assign(error, { serverMessage }))
+    Object.assign(error, { serverMessage })
+    error.message = serverMessage
+    return Promise.reject(error)
   },
 )
 

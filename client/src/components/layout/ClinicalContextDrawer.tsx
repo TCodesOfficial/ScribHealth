@@ -8,6 +8,7 @@ interface ClinicalContextDrawerProps {
 
 export default function ClinicalContextDrawer({ isOpen, onClose, consultation }: ClinicalContextDrawerProps) {
   const hasData = !!consultation
+  const patient = consultation?.patient
 
   return (
     <>
@@ -45,7 +46,6 @@ export default function ClinicalContextDrawer({ isOpen, onClose, consultation }:
 
         <div className="p-4 space-y-5">
           {!hasData ? (
-            /* Empty state */
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <span className="material-symbols-outlined text-4xl text-outline dark:text-slate-500 block mb-2">
                 health_and_safety
@@ -64,11 +64,13 @@ export default function ClinicalContextDrawer({ isOpen, onClose, consultation }:
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-white">
-                      {consultation.patientIdentifier || 'Unknown Patient'}
+                      {patient ? `${patient.firstName} ${patient.lastName}` : 'Unknown Patient'}
                     </h4>
-                    <p className="text-label-sm font-label-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
-                      {consultation.id.slice(0, 8)}
-                    </p>
+                    <div className="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
+                      {patient?.mrn && <span className="font-mono">MRN: {patient.mrn}</span>}
+                      {patient?.gender && <span>&bull; {patient.gender}</span>}
+                      {patient?.dateOfBirth && <span>&bull; DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}</span>}
+                    </div>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high dark:bg-slate-800 font-semibold text-on-surface dark:text-slate-200">
                     {consultation.Priority}

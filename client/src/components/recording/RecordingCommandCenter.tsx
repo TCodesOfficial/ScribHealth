@@ -7,9 +7,17 @@ import { useFileUpload } from '@/hooks/useFileUpload'
 
 interface RecordingCommandCenterProps {
   onRecordingComplete: (file: File) => void
+  onRecordingStopped?: (blob: Blob) => void
+  lastBlob: Blob | null
+  onSaveForLater: () => void
 }
 
-export default function RecordingCommandCenter({ onRecordingComplete }: RecordingCommandCenterProps) {
+export default function RecordingCommandCenter({
+  onRecordingComplete,
+  onRecordingStopped,
+  lastBlob,
+  onSaveForLater,
+}: RecordingCommandCenterProps) {
   const recorder = useLiveRecording()
   const fileUpload = useFileUpload()
 
@@ -24,14 +32,11 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
   const handleStopRecording = useCallback(async () => {
     const blob = await recorder.stop()
     if (blob && blob.size > 0) {
+      onRecordingStopped?.(blob)
       const file = new File([blob], `recording-${Date.now()}.webm`, { type: blob.type })
       onRecordingComplete(file)
     }
-  }, [recorder, onRecordingComplete])
-
-  const handleSaveForLater = useCallback(async () => {
-    await recorder.saveForLater()
-  }, [recorder])
+  }, [recorder, onRecordingComplete, onRecordingStopped])
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +64,7 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
             ) : (
               <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-surface-container-high dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface-variant dark:text-slate-400 text-xs font-semibold">
                 <span className="material-symbols-outlined text-base">mic_off</span>
-                Ready
+                {lastBlob ? 'Recording Stopped' : 'Ready'}
               </div>
             )}
             <div className="flex items-baseline gap-1.5">
@@ -102,11 +107,7 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {!recorder.isRecording ? (
-              <Button variant="voice" icon="mic" onClick={handleStartRecording}>
-                Start Recording
-              </Button>
-            ) : (
+            {recorder.isRecording ? (
               <>
                 <Button
                   variant="secondary"
@@ -115,7 +116,7 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
                 >
                   {recorder.isPaused ? 'Resume' : 'Pause'}
                 </Button>
-                <Button variant="secondary" icon="bookmark_add" onClick={handleSaveForLater}>
+                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater}>
                   <span className="hidden sm:inline">Save for Later</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
@@ -123,6 +124,26 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
                   <span className="truncate">Generate SOAP Note</span>
                 </Button>
               </>
+            ) : lastBlob ? (
+              <>
+                <Button variant="secondary" icon="refresh" onClick={handleStartRecording}>
+                  New Recording
+                </Button>
+                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater}>
+                  <span className="hidden sm:inline">Save for Later</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+                <Button variant="voice" icon="auto_awesome" onClick={() => {
+                  const file = new File([lastBlob], `recording-${Date.now()}.webm`, { type: lastBlob.type })
+                  onRecordingComplete(file)
+                }}>
+                  <span className="truncate">Generate SOAP Note</span>
+                </Button>
+              </>
+            ) : (
+              <Button variant="voice" icon="mic" onClick={handleStartRecording}>
+                Start Recording
+              </Button>
             )}
           </div>
         </div>

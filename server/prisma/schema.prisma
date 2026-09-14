@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,6 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 enum Priority {
   URGENT
   NORMAL
@@ -25,27 +21,52 @@ model User {
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
-  location      String?               // Custom hospital field
+  location      String?
   sessions      Session[]
   accounts      Account[]
+  patients      Patient[]
   consultations PatientConsultation[]
 
   @@map("user")
 }
 
+model Patient {
+  id            String    @id @default(uuid())
+  hospitalId    String
+  hospital      User      @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  mrn           String?
+  firstName     String
+  lastName      String
+  gender        String?
+  dateOfBirth   DateTime?
+  phone         String?
+  consultations PatientConsultation[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([hospitalId, mrn])
+  @@index([hospitalId])
+  @@map("patient")
+}
+
 model PatientConsultation {
-  id                String         @id @default(uuid())
-  hospitalId        String
-  hospital          User           @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  patientIdentifier String?
-  rawTranscript     String
-  subjective        String
-  objective         String
-  assessment        String
-  plan              String
-  icd10Codes        String[]
-  Priority    Priority @default(NORMAL)
-  createdAt         DateTime       @default(now())
+  id            String   @id @default(uuid())
+  hospitalId    String
+  hospital      User     @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  rawTranscript String   @db.Text
+  subjective    String   @db.Text
+  objective     String   @db.Text
+  assessment    String   @db.Text
+  plan          String   @db.Text
+  icd10Codes    String[]
+  Priority      Priority @default(NORMAL)
+  createdAt     DateTime @default(now())
+
+  @@index([hospitalId])
+  @@index([patientId])
+  @@map("patient_consultation")
 }
 
 model Session {

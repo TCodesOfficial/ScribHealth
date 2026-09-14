@@ -9,10 +9,26 @@ export interface User {
 
 export type Priority = 'URGENT' | 'NORMAL' | 'LOW'
 
+export interface Patient {
+  id: string
+  hospitalId: string
+  mrn: string | null
+  firstName: string
+  lastName: string
+  gender: string | null
+  dateOfBirth: string | null
+  phone: string | null
+  createdAt: string
+  updatedAt: string
+  consultations?: PatientConsultation[]
+  _count?: { consultations: number }
+}
+
 export interface PatientConsultation {
   id: string
   hospitalId: string
-  patientIdentifier: string | null
+  patientId: string
+  patient: Patient
   rawTranscript: string
   subjective: string
   objective: string

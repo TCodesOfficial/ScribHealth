@@ -5,7 +5,8 @@ interface PatientSummaryProps {
 }
 
 export default function PatientSummary({ consultation }: PatientSummaryProps) {
-  const name = consultation.patientIdentifier || 'Unknown Patient'
+  const patient = consultation.patient
+  const name = patient ? `${patient.firstName} ${patient.lastName}` : 'Unknown Patient'
 
   return (
     <div className="p-3.5 md:p-4 bg-surface-container-lowest dark:bg-slate-900 border-b border-outline-variant dark:border-slate-800 space-y-2.5 md:space-y-3 shrink-0">
@@ -22,9 +23,10 @@ export default function PatientSummary({ consultation }: PatientSummaryProps) {
               </span>
             )}
           </div>
-          <p className="text-label-sm text-outline dark:text-slate-400 mt-0.5">
-            Consultation Record
-          </p>
+          <div className="flex items-center gap-2 text-label-sm text-outline dark:text-slate-400 mt-0.5">
+            {patient?.mrn && <span className="font-mono">MRN: {patient.mrn}</span>}
+            {patient?.gender && <span>&bull; {patient.gender}</span>}
+          </div>
         </div>
         <span className="text-[11px] font-code-transcript text-outline dark:text-slate-400 bg-surface-container-high dark:bg-slate-800 px-2 py-1 rounded border border-outline-variant/60 dark:border-slate-700 shrink-0">
           #{consultation.id.slice(0, 8)}

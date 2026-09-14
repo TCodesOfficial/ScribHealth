@@ -4,15 +4,26 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import RecordingCommandCenter from '@/components/recording/RecordingCommandCenter'
 import TranscriptFeed from '@/components/recording/TranscriptFeed'
 import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 import consultationService from '@/services/consultation.service'
-import { getPendingRecordings, deletePendingRecording, type PendingRecording } from '@/lib/db'
-import type { PatientConsultation } from '@/types'
+import patientService from '@/services/patient.service'
+import { savePendingRecording, getPendingRecordings, deletePendingRecording, type PendingRecording } from '@/lib/db'
+import type { PatientConsultation, Patient } from '@/types'
 
 export default function RecordingPage() {
   const [consultation, setConsultation] = useState<PatientConsultation | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState('')
   const [pendingRecordings, setPendingRecordings] = useState<PendingRecording[]>([])
+  const [lastRecordedBlob, setLastRecordedBlob] = useState<Blob | null>(null)
+
+  // Patient info state
+  const [patientInfoOpen, setPatientInfoOpen] = useState(false)
+  const [patientMode, setPatientMode] = useState<'search' | 'new'>('search')
+  const [patientSearch, setPatientSearch] = useState('')
+  const [patientResults, setPatientResults] = useState<Patient[]>([])
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [newPatient, setNewPatient] = useState({ mrn: '', firstName: '', lastName: '' })
 
   const loadPending = useCallback(async () => {
     try {
@@ -27,11 +38,53 @@ export default function RecordingPage() {
     loadPending()
   }, [loadPending])
 
+  const searchPatients = useCallback(async (query: string) => {
+    if (query.trim().length < 1) {
+      setPatientResults([])
+      return
+    }
+    try {
+      const results = await patientService.searchPatients(query)
+      setPatientResults(results)
+    } catch {
+      // silent
+    }
+  }, [])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (patientMode === 'search') {
+        searchPatients(patientSearch)
+      }
+    }, 300)
+    return () => clearTimeout(timeout)
+  }, [patientSearch, patientMode, searchPatients])
+
+  const getPatientData = useCallback(() => {
+    if (selectedPatient) {
+      return {
+        mrn: selectedPatient.mrn || undefined,
+        firstName: selectedPatient.firstName,
+        lastName: selectedPatient.lastName,
+      }
+    }
+    if (newPatient.firstName || newPatient.lastName || newPatient.mrn) {
+      return {
+        mrn: newPatient.mrn || undefined,
+        firstName: newPatient.firstName || undefined,
+        lastName: newPatient.lastName || undefined,
+      }
+    }
+    return undefined
+  }, [selectedPatient, newPatient])
+
   const processFile = useCallback(async (file: File) => {
     setIsProcessing(true)
     setError('')
+    setLastRecordedBlob(null)
     try {
-      const result = await consultationService.processAudio(file)
+      const patientData = getPatientData()
+      const result = await consultationService.processAudio(file, patientData)
       setConsultation(result)
       toast.success('SOAP note generated successfully!')
     } catch (err: unknown) {
@@ -41,11 +94,27 @@ export default function RecordingPage() {
     } finally {
       setIsProcessing(false)
     }
-  }, [])
+  }, [getPatientData])
 
   const handleRecordingComplete = useCallback((file: File) => {
     processFile(file)
   }, [processFile])
+
+  const handleRecordingStopped = useCallback((blob: Blob) => {
+    setLastRecordedBlob(blob)
+  }, [])
+
+  const handleSaveForLater = useCallback(async () => {
+    if (!lastRecordedBlob || lastRecordedBlob.size === 0) return
+    try {
+      await savePendingRecording(lastRecordedBlob, `recording-${Date.now()}.webm`)
+      setLastRecordedBlob(null)
+      toast.success('Recording saved for later processing.')
+      loadPending()
+    } catch {
+      toast.error('Failed to save recording.')
+    }
+  }, [lastRecordedBlob, loadPending])
 
   const handleRetryPending = useCallback(async (recording: PendingRecording) => {
     await deletePendingRecording(recording.id)
@@ -59,6 +128,12 @@ export default function RecordingPage() {
     setPendingRecordings((prev) => prev.filter((r) => r.id !== id))
     toast.success('Pending recording deleted.')
   }, [])
+
+  const patientLabel = selectedPatient
+    ? `${selectedPatient.firstName} ${selectedPatient.lastName}`
+    : newPatient.firstName || newPatient.lastName
+    ? `${newPatient.firstName} ${newPatient.lastName}`.trim()
+    : null
 
   return (
     <DashboardLayout>
@@ -95,7 +170,137 @@ export default function RecordingPage() {
           </div>
         )}
 
-        <RecordingCommandCenter onRecordingComplete={handleRecordingComplete} />
+        {/* Patient Info - Collapsible */}
+        <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 shadow-xs overflow-hidden">
+          <button
+            onClick={() => setPatientInfoOpen(!patientInfoOpen)}
+            className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface-container-low/50 dark:hover:bg-slate-800/50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-lg">person</span>
+              <span className="text-sm font-semibold text-on-surface dark:text-slate-200">
+                {patientLabel ? `Patient: ${patientLabel}` : 'Set Patient (Optional)'}
+              </span>
+              {selectedPatient?.mrn && (
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high dark:bg-slate-800 text-on-surface-variant dark:text-slate-400 border border-outline-variant/60 dark:border-slate-700">
+                  MRN: {selectedPatient.mrn}
+                </span>
+              )}
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-lg transition-transform duration-200" style={{ transform: patientInfoOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+              expand_more
+            </span>
+          </button>
+
+          {patientInfoOpen && (
+            <div className="px-4 pb-4 border-t border-outline-variant/60 dark:border-slate-800 pt-3 space-y-3">
+              {/* Mode toggle */}
+              <div className="flex items-center gap-1 p-0.5 bg-surface-container-high dark:bg-slate-800 rounded-lg">
+                <button
+                  onClick={() => setPatientMode('search')}
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all ${
+                    patientMode === 'search'
+                      ? 'bg-white dark:bg-slate-700 text-on-surface dark:text-white shadow-sm'
+                      : 'text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white'
+                  }`}
+                >
+                  Existing Patient
+                </button>
+                <button
+                  onClick={() => { setPatientMode('new'); setSelectedPatient(null) }}
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all ${
+                    patientMode === 'new'
+                      ? 'bg-white dark:bg-slate-700 text-on-surface dark:text-white shadow-sm'
+                      : 'text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white'
+                  }`}
+                >
+                  New Patient
+                </button>
+              </div>
+
+              {patientMode === 'search' ? (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Input
+                      icon="search"
+                      placeholder="Search by name or MRN..."
+                      value={patientSearch}
+                      onChange={(e) => { setPatientSearch(e.target.value); setSelectedPatient(null) }}
+                    />
+                  </div>
+                  {patientResults.length > 0 && !selectedPatient && (
+                    <div className="max-h-48 overflow-y-auto border border-outline-variant/60 dark:border-slate-700 rounded-lg divide-y divide-outline-variant/40 dark:divide-slate-700/40">
+                      {patientResults.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName}`) }}
+                          className="w-full px-3 py-2.5 text-left hover:bg-surface-container-low/60 dark:hover:bg-slate-800/60 transition-colors flex items-center gap-2.5"
+                        >
+                          <div className="w-7 h-7 rounded-full bg-secondary-container/40 dark:bg-emerald-900/60 flex items-center justify-center text-[10px] font-bold text-on-secondary-container dark:text-emerald-300 shrink-0">
+                            {p.firstName[0]}{p.lastName[0]}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-on-surface dark:text-slate-200 truncate">{p.firstName} {p.lastName}</p>
+                            <p className="text-[10px] text-on-surface-variant dark:text-slate-400">
+                              {p.mrn ? `MRN: ${p.mrn}` : 'No MRN'}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {selectedPatient && (
+                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-secondary-container/20 dark:bg-emerald-950/30 border border-secondary/30 dark:border-emerald-600/30">
+                      <div className="w-7 h-7 rounded-full bg-secondary-container/40 dark:bg-emerald-900/60 flex items-center justify-center text-[10px] font-bold text-on-secondary-container dark:text-emerald-300 shrink-0">
+                        {selectedPatient.firstName[0]}{selectedPatient.lastName[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-on-surface dark:text-slate-200">{selectedPatient.firstName} {selectedPatient.lastName}</p>
+                        <p className="text-[10px] text-on-surface-variant dark:text-slate-400">{selectedPatient.mrn ? `MRN: ${selectedPatient.mrn}` : 'No MRN'}</p>
+                      </div>
+                      <button onClick={() => { setSelectedPatient(null); setPatientSearch('') }} className="text-on-surface-variant dark:text-slate-400 hover:text-error dark:hover:text-rose-400 transition-colors">
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Input
+                    icon="badge"
+                    placeholder="MRN (optional)"
+                    value={newPatient.mrn}
+                    onChange={(e) => setNewPatient({ ...newPatient, mrn: e.target.value })}
+                  />
+                  <Input
+                    icon="person"
+                    placeholder="First Name"
+                    value={newPatient.firstName}
+                    onChange={(e) => setNewPatient({ ...newPatient, firstName: e.target.value })}
+                  />
+                  <Input
+                    icon="person"
+                    placeholder="Last Name"
+                    value={newPatient.lastName}
+                    onChange={(e) => setNewPatient({ ...newPatient, lastName: e.target.value })}
+                  />
+                </div>
+              )}
+
+              <p className="text-[10px] text-on-surface-variant dark:text-slate-500 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">info</span>
+                If left empty, a walk-in patient record will be created automatically.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <RecordingCommandCenter
+          onRecordingComplete={handleRecordingComplete}
+          onRecordingStopped={handleRecordingStopped}
+          lastBlob={lastRecordedBlob}
+          onSaveForLater={handleSaveForLater}
+        />
 
         {/* Pending recordings */}
         {pendingRecordings.length > 0 && (

@@ -1,16 +1,28 @@
 import apiClient from '@/config/axios'
 import type { PatientConsultation } from '@/types'
 
+interface PatientData {
+  mrn?: string
+  firstName?: string
+  lastName?: string
+  gender?: string
+  dateOfBirth?: string
+  phone?: string
+}
+
 const consultationService = {
-  async processAudio(file: File, patientIdentifier?: string): Promise<PatientConsultation> {
+  async processAudio(file: File, patientData?: PatientData): Promise<PatientConsultation> {
     const formData = new FormData()
     formData.append('file', file)
 
-    const url = patientIdentifier
-      ? `/consultation/process-audio?patientIdentifier=${encodeURIComponent(patientIdentifier)}`
-      : '/consultation/process-audio'
+    if (patientData?.mrn) formData.append('mrn', patientData.mrn)
+    if (patientData?.firstName) formData.append('firstName', patientData.firstName)
+    if (patientData?.lastName) formData.append('lastName', patientData.lastName)
+    if (patientData?.gender) formData.append('gender', patientData.gender)
+    if (patientData?.dateOfBirth) formData.append('dateOfBirth', patientData.dateOfBirth)
+    if (patientData?.phone) formData.append('phone', patientData.phone)
 
-    const response = await apiClient.post<PatientConsultation>(url, formData, {
+    const response = await apiClient.post<PatientConsultation>('/consultation/process-audio', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 180000,
     })
