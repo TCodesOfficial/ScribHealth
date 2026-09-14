@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Document shape -->
+  <rect x="8" y="4" width="40" height="52" rx="6" fill="#0D9488" opacity="0.15"/>
+  <rect x="10" y="6" width="38" height="50" rx="5" stroke="#0D9488" stroke-width="2" fill="none"/>
+  <!-- Folded corner -->
+  <path d="M38 6V16H48" stroke="#0D9488" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 6L48 16" stroke="#0D9488" stroke-width="1.5" opacity="0.4"/>
+  <!-- Heartbeat/pulse line -->
+  <polyline points="14,34 20,34 23,24 27,42 30,28 33,36 36,34 50,34" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Pulse dot -->
+  <circle cx="30" cy="28" r="2" fill="#0D9488" opacity="0.6"/>
+  <!-- Bottom lines (document text) -->
+  <line x1="16" y1="44" x2="34" y2="44" stroke="#0D9488" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+  <line x1="16" y1="48" x2="28" y2="48" stroke="#0D9488" stroke-width="1.5" opacity="0.2" stroke-linecap="round"/>
+  <!-- AI sparkle accent -->
+  <circle cx="50" cy="12" r="3" fill="#10B981" opacity="0.8"/>
+  <circle cx="50" cy="12" r="6" fill="#10B981" opacity="0.2"/>
+</svg>

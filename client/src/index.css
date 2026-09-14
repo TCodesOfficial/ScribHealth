@@ -67,16 +67,103 @@
     background: #94A3B8;
   }
 
+  /* Animated gradient background - dark mode */
   .animated-gradient-bg {
-    background: linear-gradient(135deg, #0F172A 0%, #134E4A 25%, #0D9488 50%, #115E59 72%, #0F172A 88%, #1E293B 100%);
-    background-size: 300% 300%;
-    animation: gradient-shift 16s ease infinite;
+    background: linear-gradient(
+      135deg,
+      #0F172A 0%,
+      #134E4A 18%,
+      #0D9488 36%,
+      #065F46 50%,
+      #115E59 65%,
+      #0F172A 80%,
+      #1E293B 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 12s ease infinite;
   }
 
+  /* Animated gradient background - light mode */
   html:not(.dark) .animated-gradient-bg {
-    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 22%, #E0F2FE 45%, #ECFEFF 70%, #F0FDF4 85%, #F0FDFA 100%);
-    background-size: 300% 300%;
-    animation: gradient-shift 18s ease infinite;
+    background: linear-gradient(
+      135deg,
+      #F0FDFA 0%,
+      #CCFBF1 15%,
+      #99F6E4 30%,
+      #E0F2FE 50%,
+      #CCFBF1 70%,
+      #F0FDF4 85%,
+      #F0FDFA 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 14s ease infinite;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float-up linear infinite;
+  }
+
+  .particle-sm {
+    width: 3px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .particle-md {
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .particle-lg {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .particle-sm {
+    background: rgba(13, 148, 136, 0.25);
+  }
+
+  .dark .particle-md {
+    background: rgba(16, 185, 129, 0.2);
+  }
+
+  .dark .particle-lg {
+    background: rgba(13, 148, 136, 0.15);
+  }
+
+  html:not(.dark) .particle-sm {
+    background: rgba(13, 148, 136, 0.15);
+  }
+
+  html:not(.dark) .particle-md {
+    background: rgba(16, 185, 129, 0.12);
+  }
+
+  html:not(.dark) .particle-lg {
+    background: rgba(13, 148, 136, 0.08);
+  }
+
+  @keyframes float-up {
+    0% {
+      transform: translateY(0) translateX(0) scale(1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh) translateX(30px) scale(0.5);
+      opacity: 0;
+    }
   }
 
   ::selection {

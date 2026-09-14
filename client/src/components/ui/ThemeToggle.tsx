@@ -54,16 +54,16 @@ export default function ThemeToggle({ variant = 'button', className = '' }: Them
         flex items-center gap-1.5 px-3 py-1.5
         rounded-full text-xs font-semibold
         transition-all duration-200
-        bg-white/10
-        hover:bg-white/20
-        text-white
-        border border-white/20
+        bg-slate-200/80 dark:bg-white/10
+        hover:bg-slate-300 dark:hover:bg-white/20
+        text-slate-700 dark:text-white
+        border border-slate-300 dark:border-white/20
         backdrop-blur-md shadow-sm
         active:scale-95
         ${className}
       `}
     >
-      <span className={`material-symbols-outlined text-[17px] transition-transform duration-300 ${isDark ? 'text-teal-300' : 'text-amber-400'}`}>
+      <span className={`material-symbols-outlined text-[17px] transition-transform duration-300 ${isDark ? 'text-teal-300' : 'text-amber-500'}`}>
         {isDark ? 'light_mode' : 'dark_mode'}
       </span>
       <span className="hidden sm:inline font-medium">

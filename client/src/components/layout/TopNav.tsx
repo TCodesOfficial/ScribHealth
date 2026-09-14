@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import logo from '@/assets/logo.svg'
 
 interface TopNavProps {
   onMenuToggle: () => void
@@ -23,9 +24,7 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
 
         {/* Brand */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal-600 text-white shadow-sm">
-            <span className="material-symbols-outlined text-lg">clinical_notes</span>
-          </div>
+          <img src={logo} alt="ScribeHealth AI" className="w-8 h-8" />
           <div className="flex flex-col">
             <span className="text-base sm:text-headline-sm font-headline-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">
               ScribeHealth AI

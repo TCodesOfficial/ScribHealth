@@ -74,6 +74,10 @@ const config: Config = {
           on: '#1E293B',
         },
         'surface-variant': '#E2E8F0',
+        'on-secondary': '#ffffff',
+        'on-secondary-container': '#115E59',
+        'on-error-container': '#991B1B',
+        'on-tertiary-container': '#069669',
       },
       borderRadius: {
         DEFAULT: '0.25rem',

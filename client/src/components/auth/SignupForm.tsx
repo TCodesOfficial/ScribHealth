@@ -1,43 +1,43 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useMemo, type FormEvent } from 'react'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
+import { countries, defaultCountry } from '@/data/countries'
 
 interface SignupFormProps {
   onSubmit: (email: string, password: string, name: string, location?: string) => Promise<void>
 }
 
-const countries = [
-  { value: 'US', label: 'United States' },
-  { value: 'CA', label: 'Canada' },
-  { value: 'UK', label: 'United Kingdom' },
-  { value: 'AU', label: 'Australia' },
-]
-
-const states = [
-  { value: 'OH', label: 'Ohio (OH)' },
-  { value: 'NY', label: 'New York (NY)' },
-  { value: 'CA', label: 'California (CA)' },
-  { value: 'TX', label: 'Texas (TX)' },
-  { value: 'IL', label: 'Illinois (IL)' },
-  { value: 'MA', label: 'Massachusetts (MA)' },
-]
-
 export default function SignupForm({ onSubmit }: SignupFormProps) {
   const [orgName, setOrgName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [country, setCountry] = useState('US')
+  const [country, setCountry] = useState(defaultCountry)
   const [state, setState] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const countryOptions = countries.map((c) => ({ value: c.value, label: c.label }))
+
+  const stateOptions = useMemo(() => {
+    const selected = countries.find((c) => c.value === country)
+    return selected ? selected.states : []
+  }, [country])
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCountry(e.target.value)
+    setState('')
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
     try {
-      const location = state ? `${state}, ${country}` : country
+      const selectedCountry = countries.find((c) => c.value === country)
+      const selectedState = stateOptions.find((s) => s.value === state)
+      const locationParts = [selectedState?.label, selectedCountry?.label].filter(Boolean)
+      const location = locationParts.length > 0 ? locationParts.join(', ') : ''
       await onSubmit(email, password, orgName, location)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.'
@@ -110,7 +110,6 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline"
-              onClick={() => setState('OH')}
             >
               <span className="material-symbols-outlined text-sm">my_location</span>
               Detect Current Location
@@ -118,12 +117,12 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Select
-              options={countries}
+              options={countryOptions}
               value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              onChange={handleCountryChange}
             />
             <Select
-              options={states}
+              options={stateOptions}
               placeholder="State / Province"
               value={state}
               onChange={(e) => setState(e.target.value)}
