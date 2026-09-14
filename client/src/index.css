@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #1E293B;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .dark body,
+  body.dark-mode {
+    background-color: #0b101b;
+    color: #e2e8f0;
+  }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 2px;
+  }
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+
+  .animated-gradient-bg {
+    background: linear-gradient(135deg, #0F172A 0%, #134E4A 25%, #0D9488 50%, #115E59 72%, #0F172A 88%, #1E293B 100%);
+    background-size: 300% 300%;
+    animation: gradient-shift 16s ease infinite;
+  }
+
+  html:not(.dark) .animated-gradient-bg {
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 22%, #E0F2FE 45%, #ECFEFF 70%, #F0FDF4 85%, #F0FDFA 100%);
+    background-size: 300% 300%;
+    animation: gradient-shift 18s ease infinite;
+  }
+
+  ::selection {
+    background-color: #0D9488;
+    color: #ffffff;
+  }
+}
