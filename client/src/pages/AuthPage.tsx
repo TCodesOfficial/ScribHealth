@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import toast from 'react-hot-toast'
 import BrandPanel from '@/components/auth/BrandPanel'
 import LoginForm from '@/components/auth/LoginForm'
 import SignupForm from '@/components/auth/SignupForm'
@@ -62,7 +63,7 @@ export default function AuthPage() {
       </div>
 
       <div className="flex-1 w-full h-full grid grid-cols-1 lg:grid-cols-12 relative z-10">
-        {/* Left: Brand Panel */}
+        {/* Left: Brand Panel - hidden on mobile */}
         <BrandPanel />
 
         {/* Right: Auth Form */}
@@ -87,20 +88,20 @@ export default function AuthPage() {
             </div>
           </div>
 
-          {/* Auth card — centered, fixed width */}
+          {/* Auth card */}
           <div className="flex-1 flex items-center justify-center min-h-0">
-            <div className="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-2xl p-6 sm:p-7 lg:p-8 relative max-h-[calc(100vh-10rem)] overflow-y-auto">
+            <div className="w-full max-w-sm bg-white dark:bg-slate-900/80 dark:backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/15 shadow-2xl p-6 sm:p-7 lg:p-8 relative max-h-[calc(100vh-10rem)] overflow-y-auto">
               {/* Top accent */}
               <div className="absolute -top-px left-8 right-8 sm:left-10 sm:right-10 h-[2px] bg-gradient-to-r from-transparent via-teal-500 to-transparent" />
 
               {/* Tabs */}
-              <div className="p-1 bg-slate-100 rounded-xl flex items-center mb-5">
+              <div className="p-1 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center mb-5">
                 <button
                   onClick={() => setActiveTab('signin')}
                   className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
                     activeTab === 'signin'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
                   }`}
                 >
                   Sign In
@@ -109,8 +110,8 @@ export default function AuthPage() {
                   onClick={() => setActiveTab('signup')}
                   className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
                     activeTab === 'signup'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
                   }`}
                 >
                   Create Account

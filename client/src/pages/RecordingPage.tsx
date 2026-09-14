@@ -1,27 +1,63 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import toast from 'react-hot-toast'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import RecordingCommandCenter from '@/components/recording/RecordingCommandCenter'
 import TranscriptFeed from '@/components/recording/TranscriptFeed'
+import Button from '@/components/ui/Button'
 import consultationService from '@/services/consultation.service'
+import { getPendingRecordings, deletePendingRecording, type PendingRecording } from '@/lib/db'
 import type { PatientConsultation } from '@/types'
 
 export default function RecordingPage() {
   const [consultation, setConsultation] = useState<PatientConsultation | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState('')
+  const [pendingRecordings, setPendingRecordings] = useState<PendingRecording[]>([])
 
-  const handleRecordingComplete = useCallback(async (file: File) => {
+  const loadPending = useCallback(async () => {
+    try {
+      const list = await getPendingRecordings()
+      setPendingRecordings(list.sort((a, b) => b.createdAt - a.createdAt))
+    } catch {
+      // silent
+    }
+  }, [])
+
+  useEffect(() => {
+    loadPending()
+  }, [loadPending])
+
+  const processFile = useCallback(async (file: File) => {
     setIsProcessing(true)
     setError('')
     try {
       const result = await consultationService.processAudio(file)
       setConsultation(result)
+      toast.success('SOAP note generated successfully!')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to process audio. Please try again.'
       setError(message)
+      toast.error(message)
     } finally {
       setIsProcessing(false)
     }
+  }, [])
+
+  const handleRecordingComplete = useCallback((file: File) => {
+    processFile(file)
+  }, [processFile])
+
+  const handleRetryPending = useCallback(async (recording: PendingRecording) => {
+    await deletePendingRecording(recording.id)
+    setPendingRecordings((prev) => prev.filter((r) => r.id !== recording.id))
+    const file = new File([recording.blob], recording.fileName, { type: recording.blob.type })
+    processFile(file)
+  }, [processFile])
+
+  const handleDeletePending = useCallback(async (id: string) => {
+    await deletePendingRecording(id)
+    setPendingRecordings((prev) => prev.filter((r) => r.id !== id))
+    toast.success('Pending recording deleted.')
   }, [])
 
   return (
@@ -29,16 +65,14 @@ export default function RecordingPage() {
       {/* Subheader */}
       <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-surface-container-lowest dark:bg-slate-900 border-b border-outline-variant/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-label-sm font-label-sm truncate">
-          <span className="font-semibold text-on-surface dark:text-slate-200">Cardiology Consultation</span>
+          <span className="font-semibold text-on-surface dark:text-slate-200">Live Recording</span>
           <span className="text-outline dark:text-slate-500">&bull;</span>
-          <span className="text-on-surface-variant dark:text-slate-400">Room 402</span>
-          <span className="text-outline dark:text-slate-500 hidden sm:inline">&bull;</span>
-          <span className="text-on-surface-variant dark:text-slate-400 font-mono hidden sm:inline">Encounter #2024-118A</span>
+          <span className="text-on-surface-variant dark:text-slate-400">AI-Powered SOAP Generation</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-surface-container-high dark:bg-slate-800 text-secondary dark:text-emerald-400 text-xs font-medium border border-secondary/20 dark:border-emerald-600/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-secondary-container/40 dark:bg-emerald-950/60 text-on-secondary-container dark:text-emerald-400 text-xs font-medium border border-secondary/20 dark:border-emerald-600/30">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-emerald-500" />
-            Outpatient Visit
+            Active Session
           </span>
         </div>
       </div>
@@ -62,6 +96,47 @@ export default function RecordingPage() {
         )}
 
         <RecordingCommandCenter onRecordingComplete={handleRecordingComplete} />
+
+        {/* Pending recordings */}
+        {pendingRecordings.length > 0 && (
+          <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 p-4 shadow-xs">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-amber-500 dark:text-amber-400 text-lg">schedule_send</span>
+              <h3 className="text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider">
+                Pending Recordings
+              </h3>
+              <span className="text-xs text-on-surface-variant dark:text-slate-400 font-mono">
+                ({pendingRecordings.length})
+              </span>
+            </div>
+            <div className="space-y-2">
+              {pendingRecordings.map((rec) => (
+                <div
+                  key={rec.id}
+                  className="flex items-center justify-between gap-3 p-2.5 rounded bg-surface-container-high/60 dark:bg-slate-800/60 border border-outline-variant/50 dark:border-slate-700/50"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-base">audio_file</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-on-surface dark:text-slate-200 truncate">{rec.fileName}</p>
+                      <p className="text-[10px] text-on-surface-variant dark:text-slate-400">
+                        {new Date(rec.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Button variant="voice" size="sm" icon="play_arrow" onClick={() => handleRetryPending(rec)}>
+                      Process
+                    </Button>
+                    <Button variant="ghost" size="sm" icon="delete" onClick={() => handleDeletePending(rec.id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {consultation && (
           <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 p-4 sm:p-5 shadow-xs">
@@ -105,7 +180,7 @@ export default function RecordingPage() {
           </div>
         )}
 
-        <TranscriptFeed isLive={isProcessing} />
+        <TranscriptFeed rawTranscript={consultation?.rawTranscript} />
       </div>
     </DashboardLayout>
   )

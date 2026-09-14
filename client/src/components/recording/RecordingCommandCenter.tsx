@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
 import WaveformVisualizer from './WaveformVisualizer'
 import Button from '@/components/ui/Button'
-import { useAudioRecorder } from '@/hooks/useAudioRecorder'
+import { useLiveRecording } from '@/hooks/useLiveRecording'
 import { useFileUpload } from '@/hooks/useFileUpload'
 
 interface RecordingCommandCenterProps {
@@ -9,14 +10,14 @@ interface RecordingCommandCenterProps {
 }
 
 export default function RecordingCommandCenter({ onRecordingComplete }: RecordingCommandCenterProps) {
-  const recorder = useAudioRecorder()
+  const recorder = useLiveRecording()
   const fileUpload = useFileUpload()
 
   const handleStartRecording = useCallback(async () => {
     try {
       await recorder.start()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to start recording')
+      toast.error(err instanceof Error ? err.message : 'Failed to start recording')
     }
   }, [recorder])
 
@@ -27,6 +28,10 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
       onRecordingComplete(file)
     }
   }, [recorder, onRecordingComplete])
+
+  const handleSaveForLater = useCallback(async () => {
+    await recorder.saveForLater()
+  }, [recorder])
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,32 +50,29 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
       <div className="p-4 sm:p-5 flex flex-col gap-4 sm:gap-5">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {recorder.isRecording ? (
               <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-error-container/40 dark:bg-rose-950/40 border border-error/30 dark:border-rose-900/50 text-error dark:text-rose-400 text-xs font-semibold">
                 <span className="w-2 h-2 rounded-full bg-error dark:bg-rose-500 animate-pulse" />
-                {recorder.isPaused ? 'Recording Paused' : 'Recording in Progress'}
+                {recorder.isPaused ? 'Paused' : 'Recording'}
               </div>
             ) : (
               <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-surface-container-high dark:bg-slate-800 border border-outline-variant/60 dark:border-slate-700 text-on-surface-variant dark:text-slate-400 text-xs font-semibold">
                 <span className="material-symbols-outlined text-base">mic_off</span>
-                Ready to Record
+                Ready
               </div>
             )}
             <div className="flex items-baseline gap-1.5">
               <span className="font-mono text-xl sm:text-2xl font-bold text-on-surface dark:text-white tracking-tight">
                 {recorder.formatTime(recorder.elapsed)}
               </span>
-              <span className="text-xs text-on-surface-variant dark:text-slate-400 font-medium">elapsed</span>
+              <span className="text-xs text-on-surface-variant dark:text-slate-400 font-medium hidden sm:inline">elapsed</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-medium text-secondary dark:text-emerald-400">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-secondary dark:text-emerald-400">
             <span className="material-symbols-outlined text-base">mic</span>
-            <span className="hidden sm:inline">
-              {recorder.isRecording ? 'Microphone Active (High Quality)' : 'Microphone Standby'}
-            </span>
-            <span className="sm:hidden">{recorder.isRecording ? 'Mic Active' : 'Standby'}</span>
+            <span>{recorder.isRecording ? 'Active' : 'Standby'}</span>
           </div>
         </div>
 
@@ -95,31 +97,30 @@ export default function RecordingCommandCenter({ onRecordingComplete }: Recordin
               className="hidden"
             />
             <Button variant="secondary" icon="upload_file" onClick={fileUpload.openPicker}>
-              Upload Audio File
+              Upload Audio
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {!recorder.isRecording ? (
               <Button variant="voice" icon="mic" onClick={handleStartRecording}>
                 Start Recording
               </Button>
             ) : (
               <>
-                <Button variant="secondary" icon="flag">
-                  Mark Key Event
-                </Button>
                 <Button
                   variant="secondary"
                   icon={recorder.isPaused ? 'play_circle' : 'pause_circle'}
                   onClick={recorder.isPaused ? recorder.resume : recorder.pause}
                 >
-                  <span className="hidden sm:inline">{recorder.isPaused ? 'Resume' : 'Pause'}</span>
-                  <span className="sm:hidden">{recorder.isPaused ? 'Resume' : 'Pause'}</span>
+                  {recorder.isPaused ? 'Resume' : 'Pause'}
+                </Button>
+                <Button variant="secondary" icon="bookmark_add" onClick={handleSaveForLater}>
+                  <span className="hidden sm:inline">Save for Later</span>
+                  <span className="sm:hidden">Save</span>
                 </Button>
                 <Button variant="voice" icon="auto_awesome" onClick={handleStopRecording}>
                   <span className="truncate">Generate SOAP Note</span>
-                  <span className="material-symbols-outlined text-sm hidden sm:inline">arrow_forward</span>
                 </Button>
               </>
             )}

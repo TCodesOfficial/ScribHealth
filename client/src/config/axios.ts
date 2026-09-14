@@ -9,12 +9,20 @@ const apiClient = axios.create({
 })
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const body = response.data
+    if (body && typeof body === 'object' && 'error' in body && body.error) {
+      const errMessage = body.message || 'Request failed'
+      return Promise.reject(Object.assign(new Error(errMessage), { serverMessage: errMessage, response }))
+    }
+    return response
+  },
   (error) => {
     if (error.response?.status === 401) {
       window.dispatchEvent(new CustomEvent('auth:unauthorized'))
     }
-    return Promise.reject(error)
+    const serverMessage = error.response?.data?.message || error.message
+    return Promise.reject(Object.assign(error, { serverMessage }))
   },
 )
 

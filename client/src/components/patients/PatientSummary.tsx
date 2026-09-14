@@ -15,13 +15,15 @@ export default function PatientSummary({ consultation }: PatientSummaryProps) {
             <h2 className="text-title-md md:text-headline-sm font-headline-sm font-bold text-on-surface dark:text-white">
               {name}
             </h2>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-label-sm font-semibold bg-secondary-container/50 dark:bg-emerald-950/60 text-on-secondary-container dark:text-emerald-300 border border-secondary/30 dark:border-emerald-600/40">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-emerald-500 animate-pulse" />
-              Encounter In-Progress
-            </span>
+            {consultation.Priority && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-label-sm font-semibold bg-secondary-container/50 dark:bg-emerald-950/60 text-on-secondary-container dark:text-emerald-300 border border-secondary/30 dark:border-emerald-600/40">
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-emerald-500" />
+                {consultation.Priority} Priority
+              </span>
+            )}
           </div>
           <p className="text-label-sm text-outline dark:text-slate-400 mt-0.5">
-            Cardiology Outpatient Consultation
+            Consultation Record
           </p>
         </div>
         <span className="text-[11px] font-code-transcript text-outline dark:text-slate-400 bg-surface-container-high dark:bg-slate-800 px-2 py-1 rounded border border-outline-variant/60 dark:border-slate-700 shrink-0">

@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 interface SidebarProps {
   isOpen: boolean
@@ -10,10 +12,11 @@ interface SidebarProps {
 const navItems = [
   { to: '/recording', icon: 'mic', label: 'Live Recording', activePulse: true },
   { to: '/patients', icon: 'folder_shared', label: 'Patient Directory' },
-  { to: '/patients', icon: 'description', label: 'SOAP Notes Archive' },
 ]
 
 export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: SidebarProps) {
+  const { logout } = useAuth()
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -78,6 +81,7 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
             <div key={idx} className="relative group">
               <NavLink
                 to={item.to}
+                onClick={onClose}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                     isActive && idx === 0
@@ -105,6 +109,19 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
 
         {/* Footer */}
         <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-850/50">
+          {/* Theme toggle */}
+          {!isCollapsed ? (
+            <ThemeToggle variant="switch" />
+          ) : (
+            <div className="relative group flex items-center justify-center">
+              <ThemeToggle variant="switch" />
+              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[11px] font-medium rounded-lg shadow-md whitespace-nowrap hidden group-hover:block pointer-events-none z-50">
+                Toggle Theme
+              </div>
+            </div>
+          )}
+
+          {/* HIPAA Shield */}
           {!isCollapsed ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300">
               <span className="material-symbols-outlined text-[15px] text-teal-600 dark:text-teal-400">shield</span>
@@ -119,16 +136,22 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
             </div>
           )}
 
+          {/* Logout */}
           {!isCollapsed ? (
-            <a className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1 pl-1 transition-colors" href="#">
-              <span className="material-symbols-outlined text-[14px]">help_outline</span>
-              Help & Support
-            </a>
+            <button
+              onClick={() => { logout(); onClose() }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]">logout</span>
+              Sign Out
+            </button>
           ) : (
-            <div className="relative group flex items-center justify-center p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors cursor-pointer">
-              <span className="material-symbols-outlined text-[18px]">help_outline</span>
+            <div className="relative group flex items-center justify-center p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer">
+              <button onClick={logout}>
+                <span className="material-symbols-outlined text-[18px]">logout</span>
+              </button>
               <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[11px] font-medium rounded-lg shadow-md whitespace-nowrap hidden group-hover:block pointer-events-none z-50">
-                Help & Support
+                Sign Out
               </div>
             </div>
           )}

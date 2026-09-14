@@ -1,4 +1,5 @@
 import { useState, useMemo, type FormEvent } from 'react'
+import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
@@ -15,7 +16,6 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
   const [country, setCountry] = useState(defaultCountry)
   const [state, setState] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const countryOptions = countries.map((c) => ({ value: c.value, label: c.label }))
 
@@ -31,7 +31,6 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
     setIsLoading(true)
     try {
       const selectedCountry = countries.find((c) => c.value === country)
@@ -41,7 +40,7 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
       await onSubmit(email, password, orgName, location)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.'
-      setError(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -50,17 +49,17 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
   return (
     <div id="form-signup">
       <div className="mb-5">
-        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
           Create Practitioner Account
         </h2>
-        <p className="text-sm text-slate-500 font-body-sm mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 font-body-sm mt-1">
           Register your clinical workstation and department license.
         </p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Hospital / Organization Name
           </label>
           <Input
@@ -74,7 +73,7 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Work Email
           </label>
           <Input
@@ -88,7 +87,7 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Password
           </label>
           <Input
@@ -104,7 +103,7 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Clinical Location
             </label>
             <button
@@ -112,10 +111,10 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
               className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline"
             >
               <span className="material-symbols-outlined text-sm">my_location</span>
-              Detect Current Location
+              Detect
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Select
               options={countryOptions}
               value={country}
@@ -129,12 +128,6 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
             />
           </div>
         </div>
-
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
-            {error}
-          </p>
-        )}
 
         <Button
           type="submit"

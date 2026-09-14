@@ -2,7 +2,7 @@ import logo from '@/assets/logo.svg'
 
 export default function BrandPanel() {
   return (
-    <section className="lg:col-span-5 bg-transparent p-4 sm:p-6 md:p-8 lg:p-10 flex flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-200/30 dark:border-white/10 overflow-hidden">
+    <section className="hidden lg:flex lg:col-span-5 bg-transparent p-4 sm:p-6 md:p-8 lg:p-10 flex-col justify-between relative border-b lg:border-b-0 lg:border-r border-slate-200/30 dark:border-white/10 overflow-hidden">
       <div className="relative z-10 flex flex-col justify-between h-full">
         {/* Brand */}
         <div>

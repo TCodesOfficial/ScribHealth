@@ -99,10 +99,15 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
         resolve(blob)
       }
 
-      if (recorder.state !== 'inactive') {
-        recorder.stop()
+      if (recorder.state === 'inactive') {
+        stopTimer()
+        setIsRecording(false)
+        setIsPaused(false)
+        resolve(null)
+        return
       }
 
+      recorder.stop()
       stopTimer()
       setIsRecording(false)
       setIsPaused(false)

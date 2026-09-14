@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 
@@ -12,17 +13,15 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
     setIsLoading(true)
     try {
       await onSubmit(email, password)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed. Please try again.'
-      setError(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
@@ -31,17 +30,17 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
   return (
     <div id="form-signin">
       <div className="mb-5">
-        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
           Welcome back
         </h2>
-        <p className="text-sm text-slate-500 font-body-sm mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 font-body-sm mt-1">
           Enter your clinical credentials to access your patient charts.
         </p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Hospital Email
           </label>
           <Input
@@ -56,7 +55,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Password
             </label>
             <a className="text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline" href="#">
@@ -92,17 +91,11 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-2"
             />
-            <span className="text-sm text-slate-600">
+            <span className="text-sm text-slate-600 dark:text-slate-400">
               Remember this clinical workstation
             </span>
           </label>
         </div>
-
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
-            {error}
-          </p>
-        )}
 
         <Button
           type="submit"
