@@ -1,6 +1,6 @@
 ﻿import {
   BadGatewayException,
-  BadRequestException,
+  InternalServerErrorException,
   Injectable,
   Logger,
   NotFoundException,
@@ -8,6 +8,7 @@
 } from "@nestjs/common";
 import axios from "axios";
 import FormData from "form-data";
+import { GroqService } from "../groq/groq.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { PatientService } from "../patient/patient.service.js";
 import type { ClinicalExtraction, IntronTranscriptionResponse } from "./dto/consultation-response.dto.js";
@@ -29,8 +30,6 @@ export class ConsultationService {
     "https://infer.voice.intron.io/file/v1/upload/sync";
   private readonly intronStatusUrl =
     "https://infer.voice.intron.io/file/v1/status";
-  private readonly groqApiUrl =
-    "https://api.groq.com/openai/v1/chat/completions";
 
   private readonly clinicalExtractionPrompt = `You are a clinical documentation assistant. Analyze the following medical consultation transcript and extract structured clinical data.
 
@@ -57,7 +56,58 @@ Rules:
   constructor(
     private readonly prisma: PrismaService,
     private readonly patientService: PatientService,
+    private readonly groqService: GroqService,
   ) {}
+
+  private isRetryableError(error: unknown): boolean {
+    if (axios.isAxiosError(error)) {
+      if (
+        error.code === "ECONNABORTED" ||
+        error.code === "ECONNRESET" ||
+        error.code === "ENOTFOUND" ||
+        error.code === "ETIMEDOUT"
+      ) {
+        return true;
+      }
+      if (!error.response || (error.response.status >= 500 && error.response.status < 600)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private async uploadToIntron(
+    form: FormData,
+    headers: Record<string, string>,
+    maxRetries = 4,
+    retryDelayMs = 1500,
+  ): Promise<IntronTranscriptionResponse> {
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        this.logger.log(`Intron upload attempt ${attempt}/${maxRetries}`);
+        const response = await axios.post<IntronTranscriptionResponse>(
+          this.intronApiUrl,
+          form,
+          { headers, timeout: 30000 },
+        );
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const retryable = this.isRetryableError(error);
+        if (attempt < maxRetries && retryable) {
+          const msg = axios.isAxiosError(error) ? error.message : String(error);
+          this.logger.warn(
+            `Intron attempt ${attempt}/${maxRetries} failed (${msg}), retrying in ${retryDelayMs}ms...`,
+          );
+          await new Promise((r) => setTimeout(r, retryDelayMs));
+        } else if (!retryable) {
+          throw error;
+        }
+      }
+    }
+    throw lastError;
+  }
 
   private async transcribeAudio(
     fileBuffer: Buffer,
@@ -66,7 +116,7 @@ Rules:
   ): Promise<string> {
     const intronApiKey = process.env.INTRON_API_KEY;
     if (!intronApiKey) {
-      throw new BadRequestException("Intron API key is not configured");
+      throw new InternalServerErrorException("Intron API key is not configured");
     }
 
     const form = new FormData();
@@ -79,22 +129,15 @@ Rules:
     form.append("use_language_asr_input", "en");
 
     try {
-      const response = await axios.post<IntronTranscriptionResponse>(
-        this.intronApiUrl,
-        form,
-        {
-          headers: {
-            ...form.getHeaders(),
-            Authorization: `Bearer ${intronApiKey}`,
-          },
-          timeout: 120000,
-        },
-      );
+      const data = await this.uploadToIntron(form, {
+        ...form.getHeaders(),
+        Authorization: `Bearer ${intronApiKey}`,
+      });
 
-      const status = response.data.data.processing_status;
+      const status = data.data.processing_status;
 
       if (status === "FILE_TRANSCRIBED") {
-        return response.data.data.audio_transcript;
+        return data.data.audio_transcript;
       }
 
       if (status === "FILE_PROCESSING_FAILED") {
@@ -102,7 +145,7 @@ Rules:
         throw new BadGatewayException("Transcription processing failed");
       }
 
-      const fileId = response.data.data.file_id;
+      const fileId = data.data.file_id;
       if (!fileId) {
         this.logger.error(`Intron returned status ${status} with no file_id`);
         throw new BadGatewayException("Transcription service error: no file_id");
@@ -114,11 +157,12 @@ Rules:
       if (error instanceof BadGatewayException) throw error;
 
       if (axios.isAxiosError(error)) {
-        this.logger.error(`Intron API error: ${error.message}`);
-        if (error.code === "ECONNABORTED") {
-          throw new BadGatewayException("Transcription service timeout");
+        const detail = error.response?.data?.message || error.message;
+        this.logger.error(`Intron API error: ${detail}`);
+        if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+          throw new BadGatewayException("Transcription service timeout after retries");
         }
-        throw new BadGatewayException("Transcription service error");
+        throw new BadGatewayException(`Transcription service error: ${detail}`);
       }
 
       throw error;
@@ -184,6 +228,7 @@ Rules:
       throw new BadGatewayException("icd10Codes must be an array");
     }
 
+    data.Priority = data.Priority?.toUpperCase()?.trim() as "URGENT" | "NORMAL" | "LOW";
     if (!["URGENT", "NORMAL", "LOW"].includes(data.Priority)) {
       throw new BadGatewayException(
         "Priority must be URGENT, NORMAL, or LOW",
@@ -194,41 +239,15 @@ Rules:
   private async extractClinicalData(
     transcript: string,
   ): Promise<ClinicalExtraction> {
-    const groqApiKey = process.env.GROQ_API_KEY;
-    if (
-      !groqApiKey ||
-      groqApiKey === "your_groq_api_key_here"
-    ) {
-      throw new BadRequestException(
-        "Groq API key is not configured. Please set GROQ_API_KEY in your environment.",
-      );
-    }
-
     try {
-      const response = await axios.post(
-        this.groqApiUrl,
-        {
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            { role: "system", content: this.clinicalExtractionPrompt },
-            { role: "user", content: transcript },
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${groqApiKey}`,
-            "Content-Type": "application/json",
-          },
-          timeout: 60000,
-        },
-      );
-
-      const content = response.data.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error("Empty response from Groq API");
-      }
+      const content = await this.groqService.chatCompletion({
+        messages: [
+          { role: "system", content: this.clinicalExtractionPrompt },
+          { role: "user", content: transcript },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+      });
 
       const parsed = JSON.parse(content) as ClinicalExtraction;
 
@@ -236,10 +255,7 @@ Rules:
 
       return parsed;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        this.logger.error(`Groq API error: ${error.message}`);
-        throw new BadGatewayException("Clinical extraction service error");
-      }
+      if (error instanceof BadGatewayException) throw error;
 
       if (error instanceof SyntaxError) {
         this.logger.error(`Failed to parse Groq response: ${error.message}`);

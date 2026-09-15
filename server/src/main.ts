@@ -7,9 +7,7 @@ const port = process.env.PORT;
 const clientPrefix = process.env.CLIENT_PREFIX as string;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false,
-  });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: (

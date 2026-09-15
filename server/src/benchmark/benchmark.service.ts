@@ -1,6 +1,7 @@
 ﻿import { Injectable, Logger } from "@nestjs/common";
 import axios from "axios";
 import FormData from "form-data";
+import { GroqService } from "../groq/groq.service.js";
 import { wordErrorRate } from "word-error-rate";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -23,9 +24,9 @@ export class BenchmarkService {
 
   private readonly saharaUrl =
     "https://infer.voice.intron.io/file/v1/upload/sync";
-  private readonly groqWhisperUrl =
-    "https://api.groq.com/openai/v1/audio/transcriptions";
   private readonly deepgramUrl = "https://api.deepgram.com/v1/listen";
+
+  constructor(private readonly groqService: GroqService) {}
 
   async runBenchmark(
     fileBuffer: Buffer,
@@ -131,36 +132,18 @@ export class BenchmarkService {
     mimeType: string,
     originalName: string,
   ): Promise<ProviderResult> {
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey || apiKey === "your_groq_api_key_here") {
-      throw new Error("GROQ_API_KEY not configured");
-    }
-
-    const form = new FormData();
-    form.append("file", fileBuffer, {
-      filename: originalName,
-      contentType: mimeType,
-    });
-    form.append("model", "whisper-large-v3");
-
     const start = performance.now();
 
-    const response = await axios.post<{ text: string }>(
-      this.groqWhisperUrl,
-      form,
-      {
-        headers: {
-          ...form.getHeaders(),
-          Authorization: `Bearer ${apiKey}`,
-        },
-        timeout: 120000,
-      },
-    );
+    const transcript = await this.groqService.transcribeAudio({
+      fileBuffer,
+      mimeType,
+      fileName: originalName,
+    });
 
     const latencyMs = Math.round(performance.now() - start);
 
     return {
-      transcript: response.data.text,
+      transcript,
       latencyMs,
       wer: -1,
     };

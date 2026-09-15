@@ -11,9 +11,12 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => {
     const body = response.data
-    if (body && typeof body === 'object' && 'error' in body && body.error) {
-      const errMessage = body.message || 'Request failed'
-      return Promise.reject(Object.assign(new Error(errMessage), { serverMessage: errMessage, response }))
+    if (body && typeof body === 'object' && 'error' in body) {
+      if (body.error) {
+        const errMessage = body.message || 'Request failed'
+        return Promise.reject(Object.assign(new Error(errMessage), { serverMessage: errMessage, response }))
+      }
+      response.data = body.data
     }
     return response
   },

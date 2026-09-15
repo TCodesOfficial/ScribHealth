@@ -11,8 +11,9 @@ interface PatientListProps {
 
 export default function PatientList({ patients, activeId, onSelect, isLoading }: PatientListProps) {
   const [search, setSearch] = useState('')
+  const patientArray = Array.isArray(patients) ? patients : []
 
-  const filtered = patients.filter((p) => {
+  const filtered = patientArray.filter((p) => {
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -32,7 +33,7 @@ export default function PatientList({ patients, activeId, onSelect, isLoading }:
             <h2 className="text-body-sm font-headline-sm font-bold text-on-surface dark:text-white">Patients Directory</h2>
           </div>
           <span className="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-surface-container-high dark:bg-slate-800 text-outline dark:text-slate-400 font-semibold border border-outline-variant/60 dark:border-slate-700">
-            {patients.length} Patients
+            {patientArray.length} Patients
           </span>
         </div>
 

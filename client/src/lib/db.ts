@@ -3,6 +3,8 @@ export interface PendingRecording {
   blob: Blob
   fileName: string
   createdAt: number
+  patientId?: string
+  patientName?: string
 }
 
 const DB_NAME = 'scribehealth-pending'
@@ -23,13 +25,13 @@ function openDB(): Promise<IDBDatabase> {
   })
 }
 
-export async function savePendingRecording(blob: Blob, fileName: string): Promise<string> {
+export async function savePendingRecording(blob: Blob, fileName: string, patientId?: string, patientName?: string): Promise<string> {
   const id = `pending-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   const db = await openDB()
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite')
     const store = tx.objectStore(STORE_NAME)
-    const record: PendingRecording = { id, blob, fileName, createdAt: Date.now() }
+    const record: PendingRecording = { id, blob, fileName, createdAt: Date.now(), patientId, patientName }
     const request = store.put(record)
     request.onsuccess = () => resolve(id)
     request.onerror = () => reject(request.error)

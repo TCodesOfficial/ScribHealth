@@ -7,15 +7,17 @@ import { getAuthConfig } from "./auth/auth.js";
 import { AuthModule } from "./auth/auth.module.js";
 import { BenchmarkModule } from "./benchmark/benchmark.module.js";
 import { ConsultationModule } from "./consultation/consultation.module.js";
+import { GroqModule } from "./groq/groq.module.js";
+import { PatientModule } from "./patient/patient.module.js";
 import { PrismaModule } from "./prisma/prisma.module.js";
 import { PrismaService } from "./prisma/prisma.service.js";
 import { UserModule } from "./user/user.module.js";
-import { PatientModule } from "./patient/patient.module.js";
 import { ResponseInterceptor } from "./util/interceptors/response.interceptor.js";
 
 @Module({
   imports: [
     PrismaModule,
+    GroqModule,
     BetterAuthModule.forRootAsync({
       disableGlobalAuthGuard: true,
       imports: [PrismaModule],

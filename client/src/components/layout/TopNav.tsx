@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import logo from '@/assets/logo.svg'
 
@@ -8,6 +9,7 @@ interface TopNavProps {
 
 export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center w-full px-3 sm:px-4 md:px-6 py-2.5 z-50 h-16 shrink-0 transition-colors duration-200">
@@ -40,10 +42,14 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
         <div className="hidden lg:flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
           <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-base">person</span>
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-slate-900 dark:text-slate-100">Amina Adeleke</span>
-            <span className="text-slate-500 dark:text-slate-400 text-xs">&bull; Female, 42 &bull; MRN #9482-B</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-100">
+              {user?.name || 'No Patient Selected'}
+            </span>
           </div>
-          <button className="ml-1 text-xs font-medium text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-0.5">
+          <button
+            onClick={() => navigate('/patients')}
+            className="ml-1 text-xs font-medium text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-0.5"
+          >
             <span>Switch</span>
             <span className="material-symbols-outlined text-sm">unfold_more</span>
           </button>
@@ -52,7 +58,10 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
 
       <div className="flex items-center gap-1.5 sm:gap-3">
         {/* Emergency dictation */}
-        <button className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/60 transition-colors rounded-lg border border-red-200 dark:border-red-800 text-xs sm:text-sm font-semibold active:scale-95">
+        <button
+          onClick={() => navigate('/recording')}
+          className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/60 transition-colors rounded-lg border border-red-200 dark:border-red-800 text-xs sm:text-sm font-semibold active:scale-95"
+        >
           <span className="material-symbols-outlined text-base">emergency</span>
           <span className="hidden sm:inline">Emergency Dictation</span>
         </button>
@@ -73,7 +82,7 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
           <span className="hidden md:inline">Vitals</span>
         </button>
 
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
+        <div className="h-6 w-px bg-slate-200 dark:border-slate-700 hidden sm:block" />
 
         {/* User profile */}
         <div className="flex items-center gap-2 pl-0.5">
@@ -82,10 +91,10 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
           </div>
           <div className="hidden xl:flex flex-col">
             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
-              {user?.name || 'Dr. J. Sterling, MD'}
+              {user?.name || 'Guest User'}
             </span>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-              Attending Cardiologist
+              {user?.email || 'No email'}
             </span>
           </div>
         </div>

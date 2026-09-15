@@ -1,0 +1,29 @@
+ok read through the current codebase
+
+and fix the client side code where
+
+
+Got it — the Patients page should be:
+
+Default: Only show the patients list (full width)
+After selecting a patient: Show that patient's transcript + SOAP (side by side on desktop, tabbed on mobile)
+No patient selected: No transcript/soap content visible at all
+
+this is not what i want, i want the patient tab to have that current side tab wherere we can select patients in the side it should be there and collapsibe but it should be a side bar then when a patient is selcted they then get the transcripts and SOAPs of that patient in the transcripts and soap tabs so basically the patients tab should have it's own nested sidebar that that will be where we can select paqtinets or search them then it should have two tabs withing it where when a patient is selected it pulls all their SOAP to the soap tab and all their  transcript to the transcript tab so for every pateint selected the soap and transcript tab should be that patients own
+
+2 then the api call gets data but still in the client sode and in the database it does not save what groq sends back it only saves 
+
+Generated SOAP Note
+
+add
+New Recording
+Subjective
+Not documented in transcript
+Objective
+Not documented in transcript
+Assessment
+Not documented in transcript
+Plan
+Not documented in transcript
+
+in each of those fields
