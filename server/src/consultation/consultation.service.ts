@@ -249,6 +249,8 @@ Rules:
         temperature: 0.1,
       });
 
+      console.log('GROQ RAW RESPONSE:', content);
+
       const parsed = JSON.parse(content) as ClinicalExtraction;
 
       this.validateClinicalExtraction(parsed);

@@ -6,9 +6,14 @@ interface SoapNoteEditorProps {
   consultation: PatientConsultation
 }
 
+const getField = (field: string | undefined | null) => {
+  if (field && field.trim()) return field
+  return 'Not documented in transcript'
+}
+
 export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
   const handleCopy = () => {
-    const text = `SUBJECTIVE:\n${consultation.subjective}\n\nOBJECTIVE:\n${consultation.objective}\n\nASSESSMENT:\n${consultation.assessment}\n\nPLAN:\n${consultation.plan}\n\nICD-10: ${consultation.icd10Codes.join(', ')}`
+    const text = `SUBJECTIVE:\n${getField(consultation.subjective)}\n\nOBJECTIVE:\n${getField(consultation.objective)}\n\nASSESSMENT:\n${getField(consultation.assessment)}\n\nPLAN:\n${getField(consultation.plan)}\n\nICD-10: ${consultation.icd10Codes.join(', ')}`
     navigator.clipboard.writeText(text)
   }
 
@@ -65,7 +70,7 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
               Chief Complaint
             </span>
             <div className="p-2.5 bg-surface-bright dark:bg-slate-800/80 border border-outline-variant/60 dark:border-slate-700 rounded text-body-sm font-body-sm text-on-surface dark:text-slate-200">
-              {consultation.subjective.split('\n')[0] || 'No chief complaint documented.'}
+              {getField(consultation.subjective.split('\n')[0])}
             </div>
           </div>
           <div>
@@ -73,12 +78,12 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
               History of Present Illness (HPI)
             </span>
             <div className="p-2.5 bg-surface-bright dark:bg-slate-800/80 border border-outline-variant/60 dark:border-slate-700 rounded text-body-sm font-body-sm text-on-surface dark:text-slate-200 leading-relaxed">
-              {consultation.subjective}
+              {getField(consultation.subjective)}
             </div>
           </div>
         </SoapSection>
 
-        {/* O - Objective */}
+{/* O - Objective */}
         <SoapSection
           letter="O"
           label="Objective"
@@ -88,10 +93,10 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
         >
           <div>
             <span className="text-label-sm font-label-sm font-semibold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider block mb-1">
-              Physical Examination &amp; Findings
+              Physical Examination & Findings
             </span>
             <div className="p-2.5 bg-surface-bright dark:bg-slate-800/80 border border-outline-variant/60 dark:border-slate-700 rounded text-body-sm leading-relaxed text-on-surface dark:text-slate-200">
-              {consultation.objective}
+              {getField(consultation.objective)}
             </div>
           </div>
         </SoapSection>
@@ -111,7 +116,7 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
                 <span className="text-body-sm font-headline-sm font-semibold text-on-surface dark:text-slate-200">Clinical Assessment</span>
               </div>
               <p className="text-[12px] text-on-surface-variant dark:text-slate-400 mt-0.5">
-                {consultation.assessment}
+                {getField(consultation.assessment)}
               </p>
             </div>
           </div>
@@ -126,7 +131,7 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
           )}
         </SoapSection>
 
-        {/* P - Plan */}
+{/* P - Plan */}
         <SoapSection
           letter="P"
           label="Plan"
@@ -136,10 +141,10 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
         >
           <div>
             <span className="text-label-sm font-label-sm font-semibold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider block mb-1">
-              Treatment Plan &amp; Instructions
+              Treatment Plan & Instructions
             </span>
             <div className="p-2.5 bg-surface-bright dark:bg-slate-800/80 border border-outline-variant/60 dark:border-slate-700 rounded text-body-sm leading-relaxed text-on-surface dark:text-slate-200">
-              {consultation.plan}
+              {getField(consultation.plan)}
             </div>
           </div>
         </SoapSection>
