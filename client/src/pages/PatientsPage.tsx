@@ -134,7 +134,7 @@ export default function PatientsPage() {
 
               {/* Tab content */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                {activeTab === 'transcript' && (
+{activeTab === 'transcript' && (
                   <div className="flex-1 overflow-hidden">
                     {isLoadingPatients ? (
                       <div className="flex-1 flex items-center justify-center">
@@ -157,9 +157,9 @@ export default function PatientsPage() {
                       </>
                     )}
                   </div>
-                ))
+                )}
 
-                {activeTab === 'soap' && (
+                {activeTab === 'soap' && activeConsultation && (
                   <div className="flex-1 overflow-hidden">
                     <SoapNoteEditor consultation={activeConsultation} />
                   </div>
