@@ -18,7 +18,7 @@ export default function SoapNoteEditor({ consultation }: SoapNoteEditorProps) {
   }
 
   return (
-    <section className="w-full md:w-1/2 lg:w-7/12 xl:w-1/2 bg-surface-container-lowest dark:bg-slate-900 flex flex-col h-full overflow-hidden relative transition-colors">
+    <section className="w-full h-full bg-surface-container-lowest dark:bg-slate-900 flex flex-col overflow-hidden relative transition-colors">
       {/* Header */}
       <div className="p-3.5 md:p-4 border-b border-outline-variant dark:border-slate-800 bg-surface-container-lowest dark:bg-slate-900 shrink-0">
         <div className="flex items-center justify-between gap-2">

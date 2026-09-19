@@ -30,14 +30,13 @@ export interface PatientConsultation {
   patientId: string
   patient: Patient
   rawTranscript: string
-  subjective: string = 'Not documented in transcript'
-  objective: string = 'Not documented in transcript'
-  assessment: string = 'Not documented in transcript'
-  plan: string = 'Not documented in transcript'
-  icd10Codes: string[] = []
+  subjective: string
+  objective: string
+  assessment: string
+  plan: string
+  icd10Codes: string[]
   Priority: Priority
   createdAt: string
-  generatedSoapNote?: string
 }
 
 export interface ApiResponse<T = unknown> {

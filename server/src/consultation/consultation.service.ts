@@ -255,6 +255,8 @@ Rules:
 
       this.validateClinicalExtraction(parsed);
 
+      console.log('GROQ PARSED EXTRACTION:', JSON.stringify(parsed, null, 2));
+
       return parsed;
     } catch (error) {
       if (error instanceof BadGatewayException) throw error;
@@ -299,6 +301,11 @@ Rules:
     }
 
     const extraction = await this.extractClinicalData(transcript);
+
+    console.log('SAVING CONSULTATION - subjective:', extraction.subjective?.substring(0, 100));
+    console.log('SAVING CONSULTATION - objective:', extraction.objective?.substring(0, 100));
+    console.log('SAVING CONSULTATION - assessment:', extraction.assessment?.substring(0, 100));
+    console.log('SAVING CONSULTATION - plan:', extraction.plan?.substring(0, 100));
 
     const consultation = await this.prisma.patientConsultation.create({
       data: {
