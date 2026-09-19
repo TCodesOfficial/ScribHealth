@@ -11,12 +11,16 @@ export async function main() {
   console.log(chatCompletion.choices[0]?.message?.content || "");
 }
 
-export async function getGroqChatCompletion() {
+export async function getGroqChatCompletion(message) {
+  let promptFromUser =message || "Explain the importance of fast language models"
+
   return groq.chat.completions.create({
+
+
     messages: [
       {
         role: "user",
-        content: "Explain the importance of fast language models",
+        content: promptFromUser ,
       },
     ],
     model: "openai/gpt-oss-20b",

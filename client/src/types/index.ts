@@ -36,6 +36,7 @@ export interface PatientConsultation {
   plan: string
   icd10Codes: string[]
   Priority: Priority
+  recommendedWard?: string | null
   createdAt: string
 }
 

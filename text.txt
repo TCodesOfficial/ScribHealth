@@ -39,3 +39,15 @@ and in the downloading of the pdf the name of the pdf should have the patients n
 4 then in the recording tab there is supposed to be another side bar at the other end (right) that displays the details of any selected consultation history that matches the UI template i showed you while we were designing this app, currently if i select a history it automatically removes all the other tabs below the recording card and replaces it with information about that  selcted record history soplease try and fix that too.
 
 let's see what you come up with for this ones
+
+3
+
+
+ok now there are a few errors
+1 the download botton works on the new sidebar but it does not work on the patients tab in the SOAP place the button that says approve and sign
+
+2 the new modal and the new sidebar both have a top part but the color is just white, i want everything to match my application color scheme perfectly
+
+3 the way to update users data i can't find a botton or anything to iniate the process that is to show the modal then i can put in the update i want
+
+4 in the SOAP tab the view shows the SOAP details, I also want it that if the booton above says edit mode, then the doctor which is the user can edit the details of each of those tabs and then click an edit botton to save the whole changes that way if the AI makes a mistake it can fix it's errors nd make more meaning also i want the audio files for each patient to be saved somehow in the database, if it would be bad then i know that inton AI already has the audio in their server so maybe find a way to enable the user to be able to request the audio files directly from intron maybe save in the database the way to locate that audio file in intron and then when a user clicks a patient tab under the transcription tab there should also be a botton under each transcription to enable the user to click it and it will pull the audio file from intron and they can listen to it and make sure everything is working seemlessly  well

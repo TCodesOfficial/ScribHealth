@@ -62,6 +62,7 @@ model PatientConsultation {
   plan          String   @db.Text
   icd10Codes    String[]
   Priority      Priority @default(NORMAL)
+  recommendedWard String?
   createdAt     DateTime @default(now())
 
   @@index([hospitalId])

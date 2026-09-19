@@ -51,9 +51,6 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
                 <h2 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate">
                   MetroHealth General
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                  Cardiology &bull; Room 402
-                </p>
               </div>
             )}
           </div>

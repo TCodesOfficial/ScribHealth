@@ -5,6 +5,7 @@
   plan: string;
   icd10Codes: string[];
   Priority: "URGENT" | "NORMAL" | "LOW";
+  recommendedWard?: string;
 }
 
 export interface IntronTranscriptionResponse {

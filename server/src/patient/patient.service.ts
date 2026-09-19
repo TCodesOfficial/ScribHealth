@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 
-interface UpsertPatientDTO {
+export interface UpsertPatientDTO {
   mrn?: string;
   firstName?: string;
   lastName?: string;
@@ -45,6 +45,26 @@ export class PatientService {
     }
 
     return patient;
+  }
+
+  async updatePatient(id: string, hospitalId: string, data: UpsertPatientDTO) {
+    const patient = await this.prisma.patient.findFirst({
+      where: { id, hospitalId },
+    });
+    if (!patient) {
+      throw new NotFoundException("Patient not found");
+    }
+    return this.prisma.patient.update({
+      where: { id },
+      data: {
+        ...(data.mrn !== undefined && { mrn: data.mrn }),
+        ...(data.firstName !== undefined && { firstName: data.firstName }),
+        ...(data.lastName !== undefined && { lastName: data.lastName }),
+        ...(data.gender !== undefined && { gender: data.gender }),
+        ...(data.dateOfBirth !== undefined && { dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+      },
+    });
   }
 
   async searchPatients(hospitalId: string, query: string) {

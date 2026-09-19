@@ -40,7 +40,8 @@ Return ONLY valid JSON with this exact structure:
   "assessment": "Clinical impression, differential diagnoses, working diagnosis",
   "plan": "Treatment plan, medications prescribed, procedures ordered, follow-up instructions",
   "icd10Codes": ["ICD-10-CM codes relevant to the encounter"],
-  "Priority": "URGENT" | "NORMAL" | "LOW"
+  "Priority": "URGENT" | "NORMAL" | "LOW",
+  "recommendedWard": "Recommended hospital department or ward for patient posting (e.g. Cardiology, Emergency Department, General Medicine, ICU, Orthopedics, Pediatrics)"
 }
 
 Rules:
@@ -317,7 +318,8 @@ Rules:
         assessment: extraction.assessment,
         plan: extraction.plan,
         icd10Codes: extraction.icd10Codes,
-        Priority: extraction.Priority,
+         Priority: extraction.Priority,
+         recommendedWard: extraction.recommendedWard || "General Ward",
       },
       include: { patient: true },
     });

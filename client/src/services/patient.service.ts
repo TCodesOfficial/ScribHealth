@@ -16,6 +16,11 @@ const patientService = {
     const response = await apiClient.get<Patient[]>('/patient/search', { params: { q: query } })
     return response.data
   },
+
+  async updatePatient(id: string, data: Partial<Patient>): Promise<Patient> {
+    const response = await apiClient.put<Patient>(`/patient/${id}`, data)
+    return response.data
+  },
 }
 
 export default patientService
