@@ -38,6 +38,19 @@ const consultationService = {
     const response = await apiClient.get<PatientConsultation>(`/consultation/${id}`)
     return response.data
   },
+
+  async updateConsultation(
+    id: string,
+    data: { subjective?: string; objective?: string; assessment?: string; plan?: string }
+  ): Promise<PatientConsultation> {
+    const response = await apiClient.put<PatientConsultation>(`/consultation/${id}`, data)
+    return response.data
+  },
+
+  async getAudio(id: string): Promise<any> {
+    const response = await apiClient.get(`/consultation/${id}/audio`)
+    return response.data
+  },
 }
 
 export default consultationService

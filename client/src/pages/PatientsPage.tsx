@@ -75,9 +75,9 @@ export default function PatientsPage() {
     (mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full') +
     ' md:translate-x-0 ' +
     (sidebarCollapsed ? 'md:w-16' : 'md:w-72 lg:w-80') +
-    ' fixed md:relative inset-y-0 left-0 z-40 w-72 md:z-auto ' +
+    ' fixed md:relative top-16 md:top-0 bottom-0 left-0 z-40 w-72 md:z-auto ' +
     'bg-surface-container-lowest dark:bg-slate-900 border-r border-outline-variant dark:border-slate-800 ' +
-    'flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out shrink-0'
+    'flex flex-col h-[calc(100%-4rem)] md:h-full overflow-hidden transition-all duration-300 ease-in-out shrink-0 shadow-xl md:shadow-none'
 
   const tabButtonClass = (tab: string) => {
     const base = 'flex-1 py-2.5 px-4 text-[11px] font-label-sm font-semibold text-center transition-all border-b-2 '
@@ -216,9 +216,21 @@ export default function PatientsPage() {
                       </div>
                     ) : (
                       <>
-                        <PatientSummary consultation={activeConsultation} />
+                        <PatientSummary
+                          consultation={activeConsultation}
+                          onPatientUpdated={async () => {
+                            try {
+                              const data = await patientService.getPatients()
+                              setPatients(data)
+                              if (activePatientId) {
+                                const patient = await patientService.getPatientById(activePatientId)
+                                setConsultations(patient.consultations || [])
+                              }
+                            } catch {}
+                          }}
+                        />
                         <div className="flex-1 p-4">
-                          <TranscriptFeed rawTranscript={activeConsultation.rawTranscript} />
+                          <TranscriptFeed rawTranscript={activeConsultation.rawTranscript} consultationId={activeConsultation.id} />
                         </div>
                       </>
                     )}
@@ -227,7 +239,12 @@ export default function PatientsPage() {
 
                 {activeTab === 'soap' && activeConsultation && (
                   <div className="h-full p-4">
-                    <SoapNoteEditor consultation={activeConsultation} />
+                    <SoapNoteEditor
+                      consultation={activeConsultation}
+                      onConsultationUpdated={(updated) => {
+                        setConsultations(consultations.map((c) => (c.id === updated.id ? updated : c)))
+                      }}
+                    />
                   </div>
                 )}
 

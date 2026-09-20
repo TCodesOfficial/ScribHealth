@@ -63,6 +63,7 @@ model PatientConsultation {
   icd10Codes    String[]
   Priority      Priority @default(NORMAL)
   recommendedWard String?
+  intronFileId  String?
   createdAt     DateTime @default(now())
 
   @@index([hospitalId])

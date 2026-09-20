@@ -51,3 +51,16 @@ ok now there are a few errors
 3 the way to update users data i can't find a botton or anything to iniate the process that is to show the modal then i can put in the update i want
 
 4 in the SOAP tab the view shows the SOAP details, I also want it that if the booton above says edit mode, then the doctor which is the user can edit the details of each of those tabs and then click an edit botton to save the whole changes that way if the AI makes a mistake it can fix it's errors nd make more meaning also i want the audio files for each patient to be saved somehow in the database, if it would be bad then i know that inton AI already has the audio in their server so maybe find a way to enable the user to be able to request the audio files directly from intron maybe save in the database the way to locate that audio file in intron and then when a user clicks a patient tab under the transcription tab there should also be a botton under each transcription to enable the user to click it and it will pull the audio file from intron and they can listen to it and make sure everything is working seemlessly  well
+
+
+
+5
+ok now for the big one a lot of the tabs looks very bad on small screens
+
+the patients tab the sidetab that shows patients it looks very bad on mobile that's 1 the search bar is not showing fully and it is tuched somehow under the top bar
+
+and on mobile too when the right sidebar in the recording screen shows the element sin the left look jaggered and falls apart making it look very unprofessional
+
+also another thing is that i don't want the app to mention the AI it uses to the client like when the botton says get intron audio, no it should just be get audio or listen to original audio i dont want any mention of the AIso being used under the hood to the client side at all
+
+also when i click the pullaudio and listen botton it still does not show the audio control tab or section i asked you to create earlier 

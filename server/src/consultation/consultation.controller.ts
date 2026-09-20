@@ -1,9 +1,11 @@
 ﻿import {
+  Body,
   Controller,
   Get,
-  Post,
   Param,
-  Body,
+  Post,
+  Put,
+  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -83,5 +85,22 @@ export class ConsultationController {
     @User() user: { id: string },
   ) {
     return this.consultationService.getConsultationById(id, user.id);
+  }
+
+  @Put(":id")
+  async updateConsultation(
+    @Param("id") id: string,
+    @User() user: { id: string },
+    @Body() body: { subjective?: string; objective?: string; assessment?: string; plan?: string },
+  ) {
+    return this.consultationService.updateConsultation(id, user.id, body);
+  }
+
+  @Get(":id/audio")
+  async getAudio(
+    @Param("id") id: string,
+    @User() user: { id: string },
+  ) {
+    return this.consultationService.getIntronAudio(id, user.id);
   }
 }

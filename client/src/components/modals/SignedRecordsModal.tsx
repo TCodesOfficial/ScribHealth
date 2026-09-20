@@ -107,31 +107,31 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+      <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl border border-outline-variant dark:border-slate-800 overflow-hidden">
+        <div className="p-4 border-b border-outline-variant dark:border-slate-800 flex items-center justify-between bg-surface-container-lowest dark:bg-slate-900">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-xl">folder_managed</span>
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+            <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-xl">folder_managed</span>
+            <h2 className="text-base font-bold text-on-surface dark:text-white">
               Signed & Exported Consultation Records
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-xs font-semibold">
+            <span className="px-2 py-0.5 rounded-full bg-secondary-container/40 dark:bg-emerald-950 text-on-secondary-container dark:text-emerald-300 text-xs font-semibold">
               {records.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-1.5 rounded-lg text-outline dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
           >
             <span className="material-symbols-outlined text-xl">close</span>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="flex-1 overflow-y-auto p-4 divide-y divide-outline-variant/40 dark:divide-slate-800">
           {records.length === 0 ? (
             <div className="text-center py-12">
-              <span className="material-symbols-outlined text-4xl text-slate-400 block mb-2">folder_off</span>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No signed records found</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <span className="material-symbols-outlined text-4xl text-outline dark:text-slate-500 block mb-2">folder_off</span>
+              <p className="text-sm font-semibold text-on-surface dark:text-slate-200">No signed records found</p>
+              <p className="text-xs text-outline dark:text-slate-400 mt-1">
                 Click "Sign & Export Note" on any consultation note to sign and export it.
               </p>
             </div>
@@ -140,11 +140,11 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
               <div key={rec.id} className="py-3.5 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                    <h3 className="text-sm font-bold text-on-surface dark:text-white truncate">
                       {rec.patientName}
                     </h3>
                     {rec.mrn && (
-                      <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-surface-container-high dark:bg-slate-800 text-on-surface-variant dark:text-slate-400">
                         {rec.mrn}
                       </span>
                     )}
@@ -154,10 +154,10 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                    <strong className="text-slate-700 dark:text-slate-300">Assessment:</strong> {rec.assessment}
+                  <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-1 line-clamp-1">
+                    <strong className="text-on-surface dark:text-slate-200">Assessment:</strong> {rec.assessment}
                   </p>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-outline dark:text-slate-500 mt-0.5">
                     Signed: {new Date(rec.signedAt).toLocaleString()} &bull; Priority: {rec.priority}
                   </p>
                 </div>
@@ -165,14 +165,14 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setSelectedRecord(rec)}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                    className="px-3 py-1.5 rounded-lg bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-slate-200 hover:bg-surface-container-highest dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">visibility</span>
                     View
                   </button>
                   <button
                     onClick={() => handleRedownload(rec)}
-                    className="px-3 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
+                    className="px-3 py-1.5 rounded-lg bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm"
                   >
                     <span className="material-symbols-outlined text-[16px]">download</span>
                     PDF
@@ -187,19 +187,19 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
       {/* View Record Details Modal */}
       {selectedRecord && (
         <div className="fixed inset-0 bg-black/70 z-60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-850">
+          <div className="bg-surface-container-lowest dark:bg-slate-900 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl border border-outline-variant dark:border-slate-800 overflow-hidden">
+            <div className="p-4 border-b border-outline-variant dark:border-slate-800 flex items-center justify-between bg-surface-container-lowest dark:bg-slate-900">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-bold text-on-surface dark:text-white">
                   Signed Record: {selectedRecord.patientName}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-outline dark:text-slate-400">
                   Signed at {new Date(selectedRecord.signedAt).toLocaleString()}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedRecord(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="p-1.5 rounded-lg text-outline dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
               >
                 <span className="material-symbols-outlined text-lg">close</span>
               </button>
@@ -212,19 +212,19 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
                 { label: 'Plan', content: selectedRecord.plan },
               ].map((sec) => (
                 <div key={sec.label}>
-                  <h4 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <h4 className="text-xs font-bold text-on-surface-variant dark:text-slate-400 uppercase tracking-wider mb-1">
                     {sec.label}
                   </h4>
-                  <div className="p-2.5 rounded bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 leading-relaxed">
+                  <div className="p-2.5 rounded bg-surface-container-low dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-xs text-on-surface dark:text-slate-200 leading-relaxed">
                     {sec.content}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2 bg-slate-50 dark:bg-slate-850">
+            <div className="p-3 border-t border-outline-variant dark:border-slate-800 flex justify-end gap-2 bg-surface-container-low/30 dark:bg-slate-850">
               <button
                 onClick={() => handleRedownload(selectedRecord)}
-                className="px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 rounded-lg bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 text-xs font-semibold flex items-center gap-1.5 shadow-sm"
               >
                 <span className="material-symbols-outlined text-[16px]">download</span>
                 Download PDF

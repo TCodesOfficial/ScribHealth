@@ -1,5 +1,8 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import TranscriptTurn from './TranscriptTurn'
+import AudioPlayer from './AudioPlayer'
+import consultationService from '@/services/consultation.service'
+import toast from 'react-hot-toast'
 
 interface TranscriptLine {
   speaker: 'doctor' | 'patient'
@@ -34,25 +37,62 @@ function parseTranscript(raw: string): TranscriptLine[] {
 interface TranscriptFeedProps {
   isLive?: boolean
   rawTranscript?: string
+  consultationId?: string
 }
 
-export default function TranscriptFeed({ isLive = false, rawTranscript }: TranscriptFeedProps) {
+export default function TranscriptFeed({ isLive = false, rawTranscript, consultationId }: TranscriptFeedProps) {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [audioLoading, setAudioLoading] = useState(false)
+
   const turns = useMemo(() => {
     if (!rawTranscript) return []
     return parseTranscript(rawTranscript)
   }, [rawTranscript])
 
+  const handlePullAudio = async () => {
+    if (!consultationId) return
+    setAudioLoading(true)
+    try {
+      const data = await consultationService.getAudio(consultationId)
+      toast.success('Original audio pulled successfully!')
+      const fileUrl = data?.data?.audio_file_url || data?.data?.url || data?.audio_file_url
+      if (fileUrl) {
+        setAudioUrl(fileUrl)
+      } else {
+        toast('Audio metadata retrieved. Ready for playback.', { icon: 'ℹ️' })
+      }
+    } catch {
+      toast.error('Failed to pull original audio.')
+    } finally {
+      setAudioLoading(false)
+    }
+  }
+
   return (
     <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 flex-1 flex flex-col min-h-[380px] shadow-xs">
       {/* Header */}
-      <div className="px-4 sm:px-5 py-3 bg-surface-container-low/60 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 flex items-center justify-between shrink-0">
+      <div className="px-4 sm:px-5 py-3 bg-surface-container-low/60 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 flex items-center justify-between shrink-0 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-lg">stream</span>
           <h3 className="text-xs sm:text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider">
-            {rawTranscript ? 'Consultation Transcript' : 'Live Transcription'}
+            {rawTranscript ? 'Consultation Transcript & Audio' : 'Live Transcription'}
           </h3>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          {consultationId && !audioUrl && (
+            <button
+              onClick={handlePullAudio}
+              disabled={audioLoading}
+              className="px-3 py-1.5 bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 transition-all rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95"
+              title="Pull Original Audio File"
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {audioLoading ? 'progress_activity' : 'cloud_download'}
+              </span>
+              <span>{audioLoading ? 'Pulling Audio...' : 'Pull Audio & Listen'}</span>
+            </button>
+          )}
+
           {isLive && (
             <span className="text-xs text-on-surface-variant dark:text-slate-400 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-secondary dark:bg-emerald-500 animate-pulse" />
@@ -60,12 +100,14 @@ export default function TranscriptFeed({ isLive = false, rawTranscript }: Transc
               <span className="sm:hidden">Live</span>
             </span>
           )}
+
           {rawTranscript && (
             <button
-              className="p-1 hover:bg-surface-container-high dark:hover:bg-slate-800 rounded text-on-surface-variant dark:text-slate-400 transition-colors"
+              className="p-1.5 hover:bg-surface-container-high dark:hover:bg-slate-800 rounded-lg text-on-surface-variant dark:text-slate-400 transition-colors"
               title="Copy Transcript"
               onClick={() => {
                 navigator.clipboard.writeText(rawTranscript)
+                toast.success('Transcript copied to clipboard!')
               }}
             >
               <span className="material-symbols-outlined text-base">content_copy</span>
@@ -76,6 +118,13 @@ export default function TranscriptFeed({ isLive = false, rawTranscript }: Transc
 
       {/* Transcript body */}
       <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-4 font-body-md text-body-md custom-scrollbar">
+        {/* Audio Player Section if loaded */}
+        {audioUrl && (
+          <div className="mb-4">
+            <AudioPlayer audioUrl={audioUrl} />
+          </div>
+        )}
+
         {turns.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
             <span className="material-symbols-outlined text-4xl text-outline dark:text-slate-500 block mb-2">

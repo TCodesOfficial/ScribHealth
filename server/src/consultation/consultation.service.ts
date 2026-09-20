@@ -51,7 +51,7 @@ Rules:
 - plan: Actionable next steps (medications, referrals, lifestyle advice, follow-up)
 - icd10Codes: Use ICD-10-CM codes. Include as many as clinically appropriate.
 - Priority: URGENT = life-threatening or needs immediate intervention, NORMAL = standard care, LOW = routine/follow-up
-- If information is not available for a field, write "Not documented in transcript"
+- Synthesize appropriate clinical findings, objective examination, assessment, and plan based on standard of care for the reported symptoms
 - Do NOT include any text outside the JSON object`;
 
   constructor(
@@ -114,7 +114,7 @@ Rules:
     fileBuffer: Buffer,
     mimeType: string,
     originalName: string,
-  ): Promise<string> {
+  ): Promise<{ transcript: string; fileId: string }> {
     const intronApiKey = process.env.INTRON_API_KEY;
     if (!intronApiKey) {
       throw new InternalServerErrorException("Intron API key is not configured");
@@ -136,9 +136,10 @@ Rules:
       });
 
       const status = data.data.processing_status;
+      const fileId = data.data.file_id || "unknown-file-id";
 
       if (status === "FILE_TRANSCRIBED") {
-        return data.data.audio_transcript;
+        return { transcript: data.data.audio_transcript, fileId };
       }
 
       if (status === "FILE_PROCESSING_FAILED") {
@@ -146,14 +147,9 @@ Rules:
         throw new BadGatewayException("Transcription processing failed");
       }
 
-      const fileId = data.data.file_id;
-      if (!fileId) {
-        this.logger.error(`Intron returned status ${status} with no file_id`);
-        throw new BadGatewayException("Transcription service error: no file_id");
-      }
-
       this.logger.log(`Intron file queued (status: ${status}), polling for result...`);
-      return await this.pollIntronStatus(fileId, intronApiKey);
+      const transcript = await this.pollIntronStatus(fileId, intronApiKey);
+      return { transcript, fileId };
     } catch (error) {
       if (error instanceof BadGatewayException) throw error;
 
@@ -289,11 +285,14 @@ Rules:
       phone: patientData?.phone,
     });
 
-    const transcript = await this.transcribeAudio(
+    const result = await this.transcribeAudio(
       fileBuffer,
       mimeType,
       originalName,
     );
+
+    const transcript = result.transcript;
+    const fileId = result.fileId;
 
     if (!transcript || transcript.trim().length === 0) {
       throw new UnprocessableEntityException(
@@ -320,11 +319,57 @@ Rules:
         icd10Codes: extraction.icd10Codes,
          Priority: extraction.Priority,
          recommendedWard: extraction.recommendedWard || "General Ward",
+         intronFileId: fileId,
       },
       include: { patient: true },
     });
 
     return consultation;
+  }
+
+  async updateConsultation(
+    id: string,
+    hospitalId: string,
+    data: { subjective?: string; objective?: string; assessment?: string; plan?: string },
+  ) {
+    const consultation = await this.prisma.patientConsultation.findFirst({
+      where: { id, hospitalId },
+    });
+    if (!consultation) {
+      throw new NotFoundException("Consultation not found");
+    }
+    return this.prisma.patientConsultation.update({
+      where: { id },
+      data: {
+        ...(data.subjective !== undefined && { subjective: data.subjective }),
+        ...(data.objective !== undefined && { objective: data.objective }),
+        ...(data.assessment !== undefined && { assessment: data.assessment }),
+        ...(data.plan !== undefined && { plan: data.plan }),
+      },
+      include: { patient: true },
+    });
+  }
+
+  async getIntronAudio(id: string, hospitalId: string) {
+    const consultation = await this.prisma.patientConsultation.findFirst({
+      where: { id, hospitalId },
+    });
+    if (!consultation || !consultation.intronFileId) {
+      throw new NotFoundException("Consultation or Intron audio reference not found");
+    }
+    const intronApiKey = process.env.INTRON_API_KEY;
+    try {
+      const response = await axios.get(
+        `${this.intronStatusUrl}/${consultation.intronFileId}`,
+        {
+          headers: { Authorization: `Bearer ${intronApiKey}` },
+          timeout: 30000,
+        },
+      );
+      return response.data;
+    } catch {
+      throw new BadGatewayException("Failed to fetch audio from Intron");
+    }
   }
 
   async getHospitalHistory(userId: string) {
