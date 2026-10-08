@@ -14,7 +14,7 @@ export default function SoapFooter({ onRegenerate, onCopy, onExport, onApprove }
           className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-label-sm font-label-sm font-semibold border border-outline-variant dark:border-slate-700 rounded hover:bg-surface-container-low dark:hover:bg-slate-800 text-on-surface dark:text-slate-200 transition-all"
         >
           <span className="material-symbols-outlined text-[16px] text-secondary dark:text-emerald-400">autorenew</span>
-          <span className="hidden sm:inline">Regenerate with AI</span>
+          <span className="hidden sm:inline">Regenerate Note</span>
           <span className="sm:hidden">Regen</span>
         </button>
         <button

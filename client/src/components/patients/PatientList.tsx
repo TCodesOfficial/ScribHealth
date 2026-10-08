@@ -26,7 +26,7 @@ export default function PatientList({ patients, activeId, onSelect, isLoading }:
   return (
     <section className="w-full md:w-72 lg:w-80 shrink-0 bg-surface-container-lowest dark:bg-slate-900 border-r border-outline-variant dark:border-slate-800 flex flex-col h-full overflow-hidden transition-colors">
       {/* Header */}
-      <div className="p-3 border-b border-outline-variant dark:border-slate-800 space-y-2.5 shrink-0 bg-surface-container-low/20 dark:bg-slate-850">
+      <div className="p-3 border-b border-outline-variant dark:border-slate-800 space-y-2.5 shrink-0 bg-surface-container-low/20 dark:bg-slate-800/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-[18px]">patient_list</span>
@@ -76,7 +76,7 @@ export default function PatientList({ patients, activeId, onSelect, isLoading }:
       </div>
 
       {/* Footer */}
-      <div className="p-2.5 border-t border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-850 shrink-0 text-[11px] text-outline dark:text-slate-400">
+      <div className="p-2.5 border-t border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-800/50 shrink-0 text-[11px] text-outline dark:text-slate-400">
         <span className="font-label-sm">Sorted by: Most Recent</span>
       </div>
     </section>

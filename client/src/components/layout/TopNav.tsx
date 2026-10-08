@@ -16,7 +16,7 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
 
   return (
     <>
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center w-full px-3 sm:px-4 md:px-6 py-2.5 z-50 h-16 shrink-0 transition-colors duration-200">
+      <header className="relative bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center w-full px-3 sm:px-4 md:px-6 py-2.5 z-50 h-16 shrink-0 transition-colors duration-200">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           {/* Mobile hamburger */}
           <button
@@ -29,10 +29,10 @@ export default function TopNav({ onMenuToggle, onContextToggle }: TopNavProps) {
 
           {/* Brand */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            <img src={logo} alt="ScribeHealth AI" className="w-7 h-7 sm:w-8 sm:h-8" />
+            <img src={logo} alt="ScribeHealth" className="w-7 h-7 sm:w-8 sm:h-8" />
             <div className="flex flex-col">
               <span className="text-sm sm:text-headline-sm font-headline-sm font-bold text-slate-900 dark:text-white tracking-tight leading-none">
-                ScribeHealth AI
+                ScribeHealth
               </span>
               <span className="text-[9px] sm:text-[11px] font-label-sm text-teal-600 dark:text-teal-400 font-medium tracking-wide">
                 Clinical Suite

@@ -31,7 +31,7 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(16)
-    doc.text('SCRIBEHEALTH AI • CLINICAL REPORT', 14, 13)
+    doc.text('SCRIBEHEALTH • CLINICAL REPORT', 14, 13)
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
@@ -221,7 +221,7 @@ export default function SignedRecordsModal({ isOpen, onClose }: SignedRecordsMod
                 </div>
               ))}
             </div>
-            <div className="p-3 border-t border-outline-variant dark:border-slate-800 flex justify-end gap-2 bg-surface-container-low/30 dark:bg-slate-850">
+            <div className="p-3 border-t border-outline-variant dark:border-slate-800 flex justify-end gap-2 bg-surface-container-low/30 dark:bg-slate-800/50">
               <button
                 onClick={() => handleRedownload(selectedRecord)}
                 className="px-4 py-2 rounded-lg bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 text-xs font-semibold flex items-center gap-1.5 shadow-sm"

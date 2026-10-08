@@ -27,7 +27,7 @@ export class GroqService implements OnModuleInit {
   private getGroqClient(): Groq {
     if (!this.groq) {
       throw new InternalServerErrorException(
-        "Groq API key is not configured. Please set GROQ_API_KEY in your environment.",
+        "Note generation is unavailable. Please contact your administrator.",
       );
     }
     return this.groq;
@@ -56,7 +56,10 @@ export class GroqService implements OnModuleInit {
 
         const content = response.choices[0]?.message?.content;
         if (!content) {
-          throw new BadGatewayException("Empty response from Groq API");
+          this.logger.error(`Empty response from model ${model}`);
+          throw new BadGatewayException(
+            "Note generation returned an empty response. Please try again.",
+          );
         }
 
         this.logger.log(`Groq chat completed — model: ${model}, tokens: ${response.usage?.total_tokens ?? "unknown"}`);
@@ -85,23 +88,29 @@ export class GroqService implements OnModuleInit {
         }
 
         if (error instanceof Groq.AuthenticationError) {
-          this.logger.error(`Groq authentication failed: ${msg}`);
-          throw new BadGatewayException(`Groq authentication error: ${msg}`);
+          this.logger.error(`Authentication failed: ${msg}`);
+          throw new BadGatewayException(
+            "Note generation is unavailable. Please contact your administrator.",
+          );
         }
 
         if (error instanceof Groq.RateLimitError) {
-          this.logger.error(`Groq rate limit exceeded: ${msg}`);
-          throw new BadGatewayException(`Groq rate limit exceeded: ${msg}`);
+          this.logger.error(`Rate limit exceeded: ${msg}`);
+          throw new BadGatewayException(
+            "Note generation is busy right now. Please try again in a moment.",
+          );
         }
 
-        this.logger.error(`Groq API error (${model}): ${msg}`);
-        throw new BadGatewayException(`Clinical extraction error: ${msg}`);
+        this.logger.error(`Model error (${model}): ${msg}`);
+        throw new BadGatewayException(
+          "Failed to generate documentation. Please try again.",
+        );
       }
     }
 
-    this.logger.error("All Groq models failed");
+    this.logger.error("All models failed");
     throw new BadGatewayException(
-      "All Groq models failed. Please check your API key and model access.",
+      "Note generation is unavailable right now. Please try again later.",
     );
   }
 

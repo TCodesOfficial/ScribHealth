@@ -101,6 +101,6 @@ export class ConsultationController {
     @Param("id") id: string,
     @User() user: { id: string },
   ) {
-    return this.consultationService.getIntronAudio(id, user.id);
+    return this.consultationService.getConsultationAudio(id, user.id);
   }
 }

@@ -4,6 +4,7 @@
   ExecutionContext,
   CallHandler,
   HttpException,
+  StreamableFile,
 } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { map, catchError } from "rxjs/operators";
@@ -24,12 +25,17 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>
     next: CallHandler,
   ): Observable<ApiResponse<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        statusCode: context.switchToHttp().getResponse().statusCode,
-        error: false,
-        message: "Success",
-        data,
-      })),
+      map((data) => {
+        if (data instanceof StreamableFile) {
+          return data as unknown as ApiResponse<T>;
+        }
+        return {
+          statusCode: context.switchToHttp().getResponse().statusCode,
+          error: false,
+          message: "Success",
+          data,
+        };
+      }),
       catchError((err) => {
         if (err instanceof HttpException) {
           const status = err.getStatus();

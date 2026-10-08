@@ -2,12 +2,20 @@
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module.js";
+import { getAllowedOrigins } from "./util/allowed-origins.js";
 
 const port = process.env.PORT;
 const clientPrefix = process.env.CLIENT_PREFIX as string;
+const isProduction = process.env.NODE_ENV === "production";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  if (isProduction && getAllowedOrigins().length === 0) {
+    console.warn(
+      "[CORS] ALLOWED_ORIGINS is empty — every cross-origin browser request will be rejected in production.",
+    );
+  }
 
   app.enableCors({
     origin: (
@@ -16,17 +24,15 @@ async function bootstrap() {
     ) => {
       if (!origin) return callback(null, true);
 
-      const allowedOrigins = [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'http://localhost:3001',
-      ];
-
-      if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
-        callback(null, true);
-      } else {
-        callback(new Error('Blocked by CORS'));
+      if (isProduction) {
+        // Production: accept only the frontend origins listed in ALLOWED_ORIGINS.
+        return getAllowedOrigins().includes(origin)
+          ? callback(null, true)
+          : callback(new Error("Blocked by CORS"));
       }
+
+      // Development: allow any origin so local dev servers keep working.
+      callback(null, true);
     },
     credentials: true,
   });

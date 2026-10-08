@@ -40,7 +40,7 @@ export default function SoapNoteEditor({ consultation, onConsultationUpdated }: 
         assessment,
         plan,
       })
-      toast.success('SOAP note updated and saved to database successfully!')
+      toast.success('SOAP note updated and saved!')
       setIsEditing(false)
       if (onConsultationUpdated) {
         onConsultationUpdated(updated)
@@ -79,11 +79,9 @@ export default function SoapNoteEditor({ consultation, onConsultationUpdated }: 
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-secondary-container/40 dark:bg-emerald-950/60 text-on-secondary-container dark:text-emerald-300 text-[11px] font-label-sm font-semibold">
-                <span className="material-symbols-outlined text-[13px]">auto_awesome</span>
-                AI Generated
+                <span className="material-symbols-outlined text-[13px]">draft</span>
+                Draft
               </span>
-              <span className="text-outline dark:text-slate-500">&middot;</span>
-              <span className="text-[11px] text-outline dark:text-slate-400 font-medium">Confidence: 99.4%</span>
             </div>
           </div>
 

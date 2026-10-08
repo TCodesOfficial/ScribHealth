@@ -56,7 +56,7 @@ export function generateAndDownloadPdf(consultation: PatientConsultation, clinic
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
-  doc.text('SCRIBEHEALTH AI • CLINICAL REPORT', 14, 13)
+  doc.text('SCRIBEHEALTH • CLINICAL REPORT', 14, 13)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
@@ -151,7 +151,7 @@ export function generateAndDownloadPdf(consultation: PatientConsultation, clinic
   doc.setFontSize(9)
   doc.setTextColor(107, 114, 128)
   doc.text(`Signed Date: ${new Date().toLocaleString()}`, 14, y + 5)
-  doc.text('ScribeHealth AI Hospital System • HIPAA Compliant', pageWidth - 14, y + 5, { align: 'right' })
+  doc.text('ScribeHealth Hospital System • HIPAA Compliant', pageWidth - 14, y + 5, { align: 'right' })
 
   // Save PDF
   doc.save(filename)

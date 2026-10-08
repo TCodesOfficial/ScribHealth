@@ -18,7 +18,7 @@ export default function PatientCard({ patient, isActive, onClick }: PatientCardP
       className={`p-2.5 rounded-lg cursor-pointer transition-all relative ${
         isActive
           ? 'border-2 border-secondary/40 dark:border-emerald-500/50 bg-secondary-container/20 dark:bg-emerald-950/30 shadow-xs'
-          : 'border border-outline-variant/70 dark:border-slate-800 bg-surface-container-lowest dark:bg-slate-900 hover:bg-surface-container-low/50 dark:hover:bg-slate-850'
+          : 'border border-outline-variant/70 dark:border-slate-800 bg-surface-container-lowest dark:bg-slate-900 hover:bg-surface-container-low/50 dark:hover:bg-slate-800'
       }`}
     >
       <div className="flex items-start justify-between gap-1">

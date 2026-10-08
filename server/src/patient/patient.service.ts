@@ -36,6 +36,7 @@ export class PatientService {
         consultations: {
           orderBy: { createdAt: "desc" },
           include: { patient: true },
+          omit: { audioData: true },
         },
       },
     });

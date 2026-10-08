@@ -1,32 +1,30 @@
-# React + TypeScript + Vite
+# ScribeHealth — Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The React SPA for **ScribeHealth**: consultation recording, transcripts, SOAP
+note review/editing, the patient directory, and PDF sign & export.
 
-Currently, two official plugins are available:
+Built with React 18, TypeScript, Vite, and Tailwind CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Quick start
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev      # http://localhost:5173
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Requires `VITE_API_BASE_URL` pointing at the API (e.g.
+`http://localhost:3000/api/v1`).
+
+## Commands
+
+| Command           | Description                                  |
+| ----------------- | -------------------------------------------- |
+| `npm run dev`     | Start the Vite dev server with HMR.          |
+| `npm run build`   | Type-check (`tsc -b`) and build for release. |
+| `npm run preview` | Preview the production build locally.        |
+| `npm run lint`    | Run ESLint.                                  |
+
+---
+
+Full project documentation — setup, environment variables, API reference, and
+architecture — lives in the [root README](../README.md).

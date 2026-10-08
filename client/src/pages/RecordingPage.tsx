@@ -187,7 +187,7 @@ export default function RecordingPage() {
         <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-label-sm font-label-sm truncate">
           <span className="font-semibold text-on-surface dark:text-slate-200">Live Recording</span>
           <span className="text-outline dark:text-slate-500">&bull;</span>
-          <span className="text-on-surface-variant dark:text-slate-400">AI-Powered SOAP Generation</span>
+          <span className="text-on-surface-variant dark:text-slate-400">Clinical Documentation</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {consultation ? (
@@ -224,7 +224,7 @@ export default function RecordingPage() {
                 <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-xl animate-spin">progress_activity</span>
                 <div className="text-sm">
                   <span className="font-semibold text-on-surface dark:text-slate-200 block">Processing Audio...</span>
-                  <span className="text-on-surface-variant dark:text-slate-400">Transcribing and generating clinical documentation.</span>
+                  <span className="text-on-surface-variant dark:text-slate-400">Processing recording and preparing documentation.</span>
                 </div>
               </div>
             )}
@@ -438,7 +438,7 @@ export default function RecordingPage() {
             {consultation && (
               <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 p-4 sm:p-5 shadow-xs relative">
                 {consultation.recommendedWard && (
-                  <div className="absolute top-4 right-4 z-10">
+                  <div className="flex justify-end mb-2 sm:absolute sm:top-4 sm:right-4 sm:mb-0 z-10">
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-sm animate-pulse">
                       <span className="material-symbols-outlined text-[15px]">local_hospital</span>
                       Ward: {consultation.recommendedWard}
@@ -446,14 +446,14 @@ export default function RecordingPage() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between mb-3 pr-28">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:pr-28">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-lg">check_circle</span>
-                    <h3 className="text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider truncate">
                       Generated SOAP Note
                     </h3>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button variant="ghost" size="sm" icon="download" onClick={() => generateAndDownloadPdf(consultation)}>
                       Export PDF
                     </Button>
@@ -498,10 +498,11 @@ export default function RecordingPage() {
 
             {/* Consultation History list */}
             <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 p-4 shadow-xs">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-lg">history</span>
-                <h3 className="text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider">
-                  Consultation History (Click to view details in right panel)
+                <h3 className="text-sm font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider min-w-0">
+                  Consultation History
+                  <span className="hidden xl:inline"> (Click to view details in right panel)</span>
                 </h3>
                 {consultationHistory.length > 0 && (
                   <span className="text-xs text-on-surface-variant dark:text-slate-400 font-mono">
@@ -564,7 +565,13 @@ export default function RecordingPage() {
 
         {/* Right Sidebar for Selected Consultation History Details */}
         {selectedHistoryItem && (
-          <aside className="fixed lg:relative inset-y-0 right-0 top-16 lg:top-0 z-50 w-full sm:w-80 lg:w-96 bg-surface-container-lowest dark:bg-slate-900 border-l border-outline-variant dark:border-slate-800 flex flex-col h-[calc(100%-4rem)] lg:h-full shrink-0 shadow-2xl lg:shadow-xl overflow-hidden">
+          <div
+            className="fixed inset-0 top-16 bg-black/50 z-40 xl:hidden"
+            onClick={() => setSelectedHistoryItem(null)}
+          />
+        )}
+        {selectedHistoryItem && (
+          <aside className="fixed xl:relative inset-y-0 right-0 top-16 xl:top-0 z-40 xl:z-auto w-full sm:w-80 xl:w-96 bg-surface-container-lowest dark:bg-slate-900 border-l border-outline-variant dark:border-slate-800 flex flex-col h-[calc(100%-4rem)] xl:h-full shrink-0 shadow-2xl xl:shadow-xl overflow-hidden">
             <div className="p-3.5 border-b border-outline-variant dark:border-slate-800 bg-surface-container-lowest dark:bg-slate-900 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-lg">clinical_notes</span>

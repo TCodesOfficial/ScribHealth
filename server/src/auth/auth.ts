@@ -89,6 +89,7 @@ import "dotenv/config"
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "../generated/prisma/client.js"; 
+import { getAllowedOrigins } from "../util/allowed-origins.js";
 
 // Fix: Wrap the setup inside a factory function
 export const getAuthConfig = (prismaInstance: PrismaClient) => betterAuth({
@@ -96,7 +97,12 @@ export const getAuthConfig = (prismaInstance: PrismaClient) => betterAuth({
     provider: "postgresql",
   }),
   basePath: `${process.env.CLIENT_PREFIX || "/api/v1"}/auth`,
-  trustedOrigins: [process.env.CLIENT_URL || "http://localhost:5173"],
+  trustedOrigins: Array.from(
+    new Set([
+      process.env.CLIENT_URL || "http://localhost:5173",
+      ...getAllowedOrigins(),
+    ]),
+  ),
   emailAndPassword: {
     enabled: true,
   },
@@ -104,6 +110,20 @@ export const getAuthConfig = (prismaInstance: PrismaClient) => betterAuth({
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 2,
   },
+  // In production the SPA (e.g. *.vercel.app) calls this API (e.g. *.onrender.com)
+  // from a different site, so the session cookie must be SameSite=None; Secure to
+  // be sent on cross-origin XHR. Localhost is same-site, so dev keeps default Lax.
+  ...(process.env.NODE_ENV === "production"
+    ? {
+        advanced: {
+          useSecureCookies: true,
+          defaultCookieAttributes: {
+            sameSite: "none" as const,
+            secure: true,
+          },
+        },
+      }
+    : {}),
   user: {
     additionalFields: {
       location: {

@@ -75,9 +75,10 @@ export default function PatientsPage() {
     (mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full') +
     ' md:translate-x-0 ' +
     (sidebarCollapsed ? 'md:w-16' : 'md:w-72 lg:w-80') +
-    ' fixed md:relative top-16 md:top-0 bottom-0 left-0 z-40 w-72 md:z-auto ' +
+    ' fixed md:relative top-16 md:top-auto bottom-0 md:bottom-auto left-0 z-40 md:z-auto ' +
+    'w-72 max-w-[85vw] md:max-w-none ' +
     'bg-surface-container-lowest dark:bg-slate-900 border-r border-outline-variant dark:border-slate-800 ' +
-    'flex flex-col h-[calc(100%-4rem)] md:h-full overflow-hidden transition-all duration-300 ease-in-out shrink-0 shadow-xl md:shadow-none'
+    'flex flex-col md:h-full overflow-hidden transition-all duration-300 ease-in-out shrink-0 shadow-xl md:shadow-none'
 
   const tabButtonClass = (tab: string) => {
     const base = 'flex-1 py-2.5 px-4 text-[11px] font-label-sm font-semibold text-center transition-all border-b-2 '
@@ -97,18 +98,18 @@ export default function PatientsPage() {
           />
         )}
 
-        <button
-          onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          className="md:hidden fixed top-16 left-2 z-50 p-2 rounded-lg bg-surface-container-high dark:bg-slate-800 border border-outline-variant dark:border-slate-700 shadow-lg text-on-surface dark:text-slate-200"
-          title="Toggle patient list"
-        >
-          <span className="material-symbols-outlined text-[20px]">
-            {mobileSidebarOpen ? 'close' : 'people'}
-          </span>
-        </button>
+        {!mobileSidebarOpen && (
+          <button
+            onClick={() => setMobileSidebarOpen(true)}
+            className="md:hidden fixed top-16 left-2 z-40 p-2 rounded-lg bg-surface-container-high dark:bg-slate-800 border border-outline-variant dark:border-slate-700 shadow-lg text-on-surface dark:text-slate-200"
+            title="Open patient list"
+          >
+            <span className="material-symbols-outlined text-[20px]">people</span>
+          </button>
+        )}
 
         <aside className={sidebarClasses}>
-          <div className="p-3 border-b border-outline-variant dark:border-slate-800 space-y-2.5 shrink-0 bg-surface-container-low/20 dark:bg-slate-850">
+          <div className="p-3 border-b border-outline-variant dark:border-slate-800 space-y-2.5 shrink-0 bg-surface-container-low/20 dark:bg-slate-800/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-[18px]">patient_list</span>
@@ -122,6 +123,13 @@ export default function PatientsPage() {
                     {filteredPatients.length}
                   </span>
                 )}
+                <button
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className="md:hidden p-1 rounded hover:bg-surface-container-high dark:hover:bg-slate-800 text-outline dark:text-slate-400 transition-colors"
+                  title="Close patient list"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
                 <button
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                   className="hidden md:flex p-1 rounded hover:bg-surface-container-high dark:hover:bg-slate-800 text-outline dark:text-slate-400 transition-colors"
@@ -179,7 +187,7 @@ export default function PatientsPage() {
           </div>
 
           {!sidebarCollapsed && (
-            <div className="p-2.5 border-t border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-850 shrink-0 text-[11px] text-outline dark:text-slate-400">
+            <div className="p-2.5 border-t border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-800/50 shrink-0 text-[11px] text-outline dark:text-slate-400">
               <span className="font-label-sm">Sorted by: Most Recent</span>
             </div>
           )}
@@ -188,7 +196,7 @@ export default function PatientsPage() {
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           {activePatientId ? (
             <>
-              <div className="flex items-center border-b border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-850 shrink-0">
+              <div className="flex items-center border-b border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-800/50 shrink-0">
                 <button onClick={() => setActiveTab('transcript')} className={tabButtonClass('transcript')}>
                   <span className="material-symbols-outlined text-[14px] mr-1 align-middle">subtitles</span>
                   Transcript

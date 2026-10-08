@@ -1,4 +1,5 @@
 import apiClient from '@/config/axios'
+import { getCachedAudio, putCachedAudio } from '@/lib/audioCache'
 import type { PatientConsultation } from '@/types'
 
 interface PatientData {
@@ -47,9 +48,17 @@ const consultationService = {
     return response.data
   },
 
-  async getAudio(id: string): Promise<any> {
-    const response = await apiClient.get(`/consultation/${id}/audio`)
-    return response.data
+  async getAudio(id: string): Promise<string> {
+    const cached = await getCachedAudio(id)
+    if (cached) return URL.createObjectURL(cached)
+
+    const response = await apiClient.get(`/consultation/${id}/audio`, {
+      responseType: 'blob',
+      timeout: 60000,
+    })
+    const blob: Blob = response.data
+    void putCachedAudio(id, blob)
+    return URL.createObjectURL(blob)
   },
 }
 

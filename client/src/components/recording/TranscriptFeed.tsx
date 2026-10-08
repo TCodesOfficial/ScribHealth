@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import TranscriptTurn from './TranscriptTurn'
 import AudioPlayer from './AudioPlayer'
 import consultationService from '@/services/consultation.service'
@@ -44,6 +44,12 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [audioLoading, setAudioLoading] = useState(false)
 
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl)
+    }
+  }, [audioUrl])
+
   const turns = useMemo(() => {
     if (!rawTranscript) return []
     return parseTranscript(rawTranscript)
@@ -53,16 +59,11 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
     if (!consultationId) return
     setAudioLoading(true)
     try {
-      const data = await consultationService.getAudio(consultationId)
-      toast.success('Original audio pulled successfully!')
-      const fileUrl = data?.data?.audio_file_url || data?.data?.url || data?.audio_file_url
-      if (fileUrl) {
-        setAudioUrl(fileUrl)
-      } else {
-        toast('Audio metadata retrieved. Ready for playback.', { icon: 'ℹ️' })
-      }
+      const url = await consultationService.getAudio(consultationId)
+      setAudioUrl(url)
+      toast.success('Audio loaded — press play to listen.')
     } catch {
-      toast.error('Failed to pull original audio.')
+      toast.error('Original audio is not available for this recording.')
     } finally {
       setAudioLoading(false)
     }
@@ -83,13 +84,13 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
             <button
               onClick={handlePullAudio}
               disabled={audioLoading}
-              className="px-3 py-1.5 bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 transition-all rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95"
-              title="Pull Original Audio File"
+              className="px-3 py-1.5 bg-secondary dark:bg-emerald-600 text-white hover:bg-secondary/90 transition-all rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 disabled:opacity-60"
+              title="Play the original consultation recording"
             >
               <span className="material-symbols-outlined text-[16px]">
-                {audioLoading ? 'progress_activity' : 'cloud_download'}
+                {audioLoading ? 'progress_activity' : 'headphones'}
               </span>
-              <span>{audioLoading ? 'Pulling Audio...' : 'Pull Audio & Listen'}</span>
+              <span>{audioLoading ? 'Loading Audio...' : 'Listen to Original Audio'}</span>
             </button>
           )}
 
@@ -166,17 +167,17 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
       <div className="px-4 sm:px-5 py-2.5 bg-surface-container-low dark:bg-slate-800/80 border-t border-outline-variant/80 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant dark:text-slate-400 font-mono">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-sm">auto_fix_high</span>
-            {turns.length} turns parsed
+            <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-sm">forum</span>
+            {turns.length} {turns.length === 1 ? 'turn' : 'turns'}
           </span>
           <span className="hidden sm:inline">&bull;</span>
           <span className="hidden sm:inline">
-            {rawTranscript ? 'Full transcript loaded' : 'Awaiting audio stream'}
+            {rawTranscript ? 'Full transcript loaded' : 'No transcript loaded yet'}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="px-2 py-0.5 rounded bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-[11px]">
-            {isLive ? 'Buffer: 99.8%' : 'Idle'}
+            {isLive ? 'Live' : 'Ready'}
           </span>
         </div>
       </div>

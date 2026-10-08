@@ -12,8 +12,10 @@ export default function AudioPlayer({ audioUrl, fileName = 'Consultation Recordi
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
+    setLoadError(false)
     const audio = audioRef.current
     if (!audio) return
 
@@ -34,12 +36,15 @@ export default function AudioPlayer({ audioUrl, fileName = 'Consultation Recordi
 
   const togglePlay = () => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || loadError) return
     if (isPlaying) {
       audio.pause()
       setIsPlaying(false)
     } else {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {})
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setLoadError(true))
     }
   }
 
@@ -60,14 +65,15 @@ export default function AudioPlayer({ audioUrl, fileName = 'Consultation Recordi
   }
 
   const formatTime = (secs: number) => {
+    if (!Number.isFinite(secs)) return '--:--'
     const mins = Math.floor(secs / 60)
     const remaining = Math.floor(secs % 60)
     return `${String(mins).padStart(2, '0')}:${String(remaining).padStart(2, '0')}`
   }
 
   return (
-    <div className="p-4 bg-surface-container-low dark:bg-slate-850 rounded-xl border border-outline-variant/80 dark:border-slate-700 shadow-sm space-y-3">
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+    <div className="p-4 bg-surface-container-low dark:bg-slate-800 rounded-xl border border-outline-variant/80 dark:border-slate-700 shadow-sm space-y-3">
+      <audio ref={audioRef} src={audioUrl} preload="metadata" onError={() => setLoadError(true)} />
 
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -76,7 +82,9 @@ export default function AudioPlayer({ audioUrl, fileName = 'Consultation Recordi
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-on-surface dark:text-white truncate">{fileName}</p>
-            <p className="text-[10px] text-outline dark:text-slate-400 font-mono">Secure Cloud Audio Stream</p>
+            <p className={`text-[10px] font-mono truncate ${loadError ? 'text-error dark:text-rose-400' : 'text-outline dark:text-slate-400'}`}>
+              {loadError ? 'Playback unavailable for this recording' : 'Original recording'}
+            </p>
           </div>
         </div>
 
@@ -86,6 +94,7 @@ export default function AudioPlayer({ audioUrl, fileName = 'Consultation Recordi
             size="sm"
             icon={isPlaying ? 'pause' : 'play_arrow'}
             onClick={togglePlay}
+            disabled={loadError}
           >
             {isPlaying ? 'Pause' : 'Play'}
           </Button>

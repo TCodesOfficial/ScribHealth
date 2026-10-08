@@ -32,7 +32,7 @@ export default function ClinicalContextDrawer({ isOpen, onClose, consultation }:
         `}
       >
         {/* Header */}
-        <div className="p-4 border-b border-outline-variant dark:border-slate-800 bg-surface-container-low/50 dark:bg-slate-850 flex items-center justify-between">
+        <div className="p-4 border-b border-outline-variant dark:border-slate-800 bg-surface-container-low/50 dark:bg-slate-800/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-on-surface-variant dark:text-slate-400 text-lg">patient_list</span>
             <span className="text-label-md font-label-md font-bold text-on-surface dark:text-slate-200 uppercase tracking-wider">
@@ -119,12 +119,12 @@ export default function ClinicalContextDrawer({ isOpen, onClose, consultation }:
                 </div>
               )}
 
-              {/* AI Status */}
+              {/* Documentation Status */}
               <div className="p-3 bg-secondary-container/20 dark:bg-emerald-950/40 rounded border border-secondary/30 dark:border-emerald-600/30 flex items-center gap-3">
-                <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-xl">psychology</span>
+                <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-xl">check_circle</span>
                 <div className="flex-1 text-xs">
-                  <span className="font-semibold text-on-surface dark:text-slate-200 block">AI Documentation Complete</span>
-                  <span className="text-on-surface-variant dark:text-slate-400">SOAP note generated from consultation recording.</span>
+                  <span className="font-semibold text-on-surface dark:text-slate-200 block">Documentation Complete</span>
+                  <span className="text-on-surface-variant dark:text-slate-400">SOAP note ready for review.</span>
                 </div>
               </div>
             </>

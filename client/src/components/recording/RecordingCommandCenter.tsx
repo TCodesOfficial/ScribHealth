@@ -120,7 +120,7 @@ export default function RecordingCommandCenter({
                   <span className="hidden sm:inline">Save for Later</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
-                <Button variant="voice" icon="auto_awesome" onClick={handleStopRecording}>
+                <Button variant="voice" icon="stop_circle" onClick={handleStopRecording}>
                   <span className="truncate">Generate SOAP Note</span>
                 </Button>
               </>
@@ -133,7 +133,7 @@ export default function RecordingCommandCenter({
                   <span className="hidden sm:inline">Save for Later</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
-                <Button variant="voice" icon="auto_awesome" onClick={() => {
+                <Button variant="voice" icon="description" onClick={() => {
                   const file = new File([lastBlob], `recording-${Date.now()}.webm`, { type: lastBlob.type })
                   onRecordingComplete(file)
                 }}>

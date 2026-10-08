@@ -7,10 +7,10 @@ export default function BrandPanel() {
         {/* Brand */}
         <div>
           <div className="flex items-center gap-3">
-            <img src={logo} alt="ScribeHealth AI" className="w-10 h-10 sm:w-11 sm:h-11" />
+            <img src={logo} alt="ScribeHealth" className="w-10 h-10 sm:w-11 sm:h-11" />
             <div>
               <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                ScribeHealth AI
+                ScribeHealth
               </span>
               <p className="text-label-sm text-teal-600 dark:text-teal-300/80 font-medium">
                 Autonomous Clinical Documentation

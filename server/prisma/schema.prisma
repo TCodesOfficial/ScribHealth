@@ -64,6 +64,8 @@ model PatientConsultation {
   Priority      Priority @default(NORMAL)
   recommendedWard String?
   intronFileId  String?
+  audioData     Bytes?
+  audioMimeType String?
   createdAt     DateTime @default(now())
 
   @@index([hospitalId])
