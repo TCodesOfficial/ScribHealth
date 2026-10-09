@@ -96,7 +96,7 @@ export const getAuthConfig = (prismaInstance: PrismaClient) => betterAuth({
   database: prismaAdapter(prismaInstance, {
     provider: "postgresql",
   }),
-  basePath: "/auth",
+  basePath: `${process.env.CLIENT_PREFIX || "/api/v1"}/auth`,
   trustedOrigins: Array.from(
     new Set([
       process.env.CLIENT_URL || "http://localhost:5173",
