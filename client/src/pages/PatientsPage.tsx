@@ -138,7 +138,7 @@ export default function PatientsPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex-1 flex overflow-hidden w-full h-full bg-background dark:bg-slate-950 relative">
+      <div className="flex-1 flex overflow-hidden w-full min-h-0 bg-background dark:bg-slate-950 relative">
         {mobileSidebarOpen && (
           <div
             className="md:hidden fixed inset-0 bg-black/50 z-40"
@@ -193,7 +193,7 @@ export default function PatientsPage() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2.5 space-y-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-2.5 space-y-2 custom-scrollbar">
             {isLoadingPatients ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <span className="material-symbols-outlined text-3xl text-secondary dark:text-emerald-400 animate-spin block mb-2">progress_activity</span>
@@ -231,7 +231,7 @@ export default function PatientsPage() {
           )}
         </aside>
 
-        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
           {activePatientId ? (
             <>
               {/* Patient header — always visible, edit/delete available even with no consultations */}
@@ -314,7 +314,7 @@ export default function PatientsPage() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto overscroll-contain">
                 {activeTab === 'transcript' && (
                   <div className="h-full flex flex-col">
                     {isLoadingConsultations ? (
@@ -335,7 +335,7 @@ export default function PatientsPage() {
                           consultation={activeConsultation}
                           onPatientUpdated={refreshPatientData}
                         />
-                        <div className="flex-1 p-4">
+                        <div className="flex-1 min-h-0 p-4">
                           <TranscriptFeed rawTranscript={activeConsultation.rawTranscript} consultationId={activeConsultation.id} />
                         </div>
                       </>

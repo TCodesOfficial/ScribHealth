@@ -70,7 +70,7 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
   }
 
   return (
-    <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 flex-1 flex flex-col min-h-[380px] shadow-xs">
+    <div className="bg-surface-container-lowest dark:bg-slate-900 rounded border border-outline-variant dark:border-slate-800 flex-1 flex flex-col min-h-0 overflow-hidden shadow-xs">
       {/* Header */}
       <div className="px-4 sm:px-5 py-3 bg-surface-container-low/60 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 flex items-center justify-between shrink-0 flex-wrap gap-2">
         <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export default function TranscriptFeed({ isLive = false, rawTranscript, consulta
       </div>
 
       {/* Bottom HUD */}
-      <div className="px-4 sm:px-5 py-2.5 bg-surface-container-low dark:bg-slate-800/80 border-t border-outline-variant/80 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant dark:text-slate-400 font-mono">
+      <div className="px-4 sm:px-5 py-2.5 bg-surface-container-low dark:bg-slate-800/80 border-t border-outline-variant/80 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2 text-xs text-on-surface-variant dark:text-slate-400 font-mono shrink-0">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="flex items-center gap-1">
             <span className="material-symbols-outlined text-secondary dark:text-emerald-400 text-sm">forum</span>

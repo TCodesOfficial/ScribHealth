@@ -209,8 +209,8 @@ export default function RecordingPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative w-full h-full bg-background dark:bg-slate-950">
-        <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto custom-scrollbar">
+      <div className="flex-1 flex overflow-hidden relative w-full min-h-0 bg-background dark:bg-slate-950">
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto overscroll-contain custom-scrollbar">
           <div className="p-3 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto flex flex-col gap-4 sm:gap-6">
             {error && (
               <div className="p-3 rounded bg-error-container/30 dark:bg-rose-950/40 border border-error/20 dark:border-rose-900/50 text-error dark:text-rose-300 text-sm flex items-center gap-2">
@@ -596,7 +596,7 @@ export default function RecordingPage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3.5 custom-scrollbar">
               <div className="p-3 rounded-lg bg-surface-container-low dark:bg-slate-800 border border-outline-variant dark:border-slate-700 space-y-1">
                 <h4 className="text-sm font-bold text-on-surface dark:text-white">
                   {selectedHistoryItem.patient.firstName} {selectedHistoryItem.patient.lastName}

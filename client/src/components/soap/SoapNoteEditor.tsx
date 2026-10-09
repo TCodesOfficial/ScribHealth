@@ -119,7 +119,7 @@ export default function SoapNoteEditor({ consultation, onConsultationUpdated }: 
       </div>
 
       {/* SOAP content */}
-      <div className="flex-1 overflow-y-auto p-3.5 md:p-4 space-y-4 custom-scrollbar pb-24 bg-surface-container-low/30 dark:bg-slate-950/70">
+      <div className="flex-1 overflow-y-auto p-3.5 md:p-4 space-y-4 custom-scrollbar pb-4 bg-surface-container-low/30 dark:bg-slate-950/70">
         {/* S - Subjective */}
         <SoapSection letter="S" label="Subjective">
           <div>
