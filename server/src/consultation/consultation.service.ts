@@ -73,7 +73,7 @@ export class ConsultationService {
       await this.prisma.patientConsultation.update({
         where: { id: consultationId },
         data: {
-          audioData: fileBuffer,
+          audioData: new Uint8Array(fileBuffer),
           audioMimeType: mimeType,
         },
       });
