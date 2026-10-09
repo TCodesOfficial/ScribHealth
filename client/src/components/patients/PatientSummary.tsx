@@ -26,7 +26,7 @@ export default function PatientSummary({ consultation, onPatientUpdated }: Patie
     <div className="p-3.5 md:p-4 bg-surface-container-lowest dark:bg-slate-900 border-b border-outline-variant dark:border-slate-800 space-y-3 shrink-0 relative">
       {/* Top Floating Recommended Ward Badge */}
       {consultation.recommendedWard && (
-        <div className="absolute top-3 right-3 md:right-4 z-10">
+        <div className="flex justify-end mb-1 sm:absolute sm:top-3 sm:right-3 md:right-4 sm:mb-0 z-10">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-sm animate-pulse">
             <span className="material-symbols-outlined text-[16px]">local_hospital</span>
             Recommended Ward: {consultation.recommendedWard}
@@ -34,7 +34,7 @@ export default function PatientSummary({ consultation, onPatientUpdated }: Patie
         </div>
       )}
 
-      <div className="flex items-start justify-between gap-2 pr-44">
+      <div className="flex items-start justify-between gap-2 sm:pr-44">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-title-md md:text-headline-sm font-headline-sm font-bold text-on-surface dark:text-white">
@@ -62,7 +62,7 @@ export default function PatientSummary({ consultation, onPatientUpdated }: Patie
       </div>
 
       {/* Quick Actions & Badges */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+      <div className="flex flex-wrap items-center justify-center sm:justify-between gap-2 pt-1">
         <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
           <span className="px-2 py-0.5 rounded text-[11px] font-label-sm bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-slate-200 border border-outline-variant/60 dark:border-slate-700 flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px] text-secondary dark:text-emerald-400">favorite</span>

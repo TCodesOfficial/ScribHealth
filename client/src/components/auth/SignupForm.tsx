@@ -48,18 +48,18 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
 
   return (
     <div id="form-signup">
-      <div className="mb-5">
-        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
+      <div className="mb-3">
+        <h2 className="text-lg sm:text-xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
           Create Practitioner Account
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-body-sm mt-1">
+        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-body-sm mt-0.5">
           Register your clinical workstation and department license.
         </p>
       </div>
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-3" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Hospital / Organization Name
           </label>
           <Input
@@ -68,12 +68,13 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
             placeholder="e.g. MetroHealth Medical Center"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
+            className="py-2 text-[13px]"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Work Email
           </label>
           <Input
@@ -82,12 +83,13 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
             placeholder="physician@hospital.org"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="py-2 text-[13px]"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Password
           </label>
           <Input
@@ -96,14 +98,15 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
             placeholder="At least 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="py-2 text-[13px]"
             required
             minLength={8}
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Clinical Location
             </label>
             <button
@@ -119,12 +122,14 @@ export default function SignupForm({ onSubmit }: SignupFormProps) {
               options={countryOptions}
               value={country}
               onChange={handleCountryChange}
+              className="py-2 text-[13px]"
             />
             <Select
               options={stateOptions}
               placeholder="State / Province"
               value={state}
               onChange={(e) => setState(e.target.value)}
+              className="py-2 text-[13px]"
             />
           </div>
         </div>

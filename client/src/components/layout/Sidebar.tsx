@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import ConfirmModal from '@/components/modals/ConfirmModal'
 
 interface SidebarProps {
   isOpen: boolean
@@ -16,6 +18,13 @@ const navItems = [
 
 export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: SidebarProps) {
   const { logout } = useAuth()
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+
+  const handleLogout = async () => {
+    setIsConfirmOpen(false)
+    await logout()
+    onClose()
+  }
 
   return (
     <>
@@ -136,7 +145,7 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
           {/* Logout */}
           {!isCollapsed ? (
             <button
-              onClick={() => { logout(); onClose() }}
+              onClick={() => setIsConfirmOpen(true)}
               className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             >
               <span className="material-symbols-outlined text-[14px]">logout</span>
@@ -144,7 +153,7 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
             </button>
           ) : (
             <div className="relative group flex items-center justify-center p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer">
-              <button onClick={logout}>
+              <button onClick={() => setIsConfirmOpen(true)}>
                 <span className="material-symbols-outlined text-[18px]">logout</span>
               </button>
               <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-[11px] font-medium rounded-lg shadow-md whitespace-nowrap hidden group-hover:block pointer-events-none z-50">
@@ -154,6 +163,17 @@ export default function Sidebar({ isOpen, isCollapsed, onToggle, onClose }: Side
           )}
         </div>
       </aside>
+
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        title="Sign out"
+        message="Are you sure you want to sign out of ScribeHealth? Any unsaved work will be lost."
+        confirmLabel="Sign Out"
+        cancelLabel="Stay Signed In"
+        danger
+        onConfirm={handleLogout}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
     </>
   )
 }

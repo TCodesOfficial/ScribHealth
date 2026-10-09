@@ -1,6 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import WaveformVisualizer from './WaveformVisualizer'
+import AudioPlayer from './AudioPlayer'
 import Button from '@/components/ui/Button'
 import { useLiveRecording } from '@/hooks/useLiveRecording'
 import { useFileUpload } from '@/hooks/useFileUpload'
@@ -20,6 +21,16 @@ export default function RecordingCommandCenter({
 }: RecordingCommandCenterProps) {
   const recorder = useLiveRecording()
   const fileUpload = useFileUpload()
+
+  const previewUrl = useMemo(
+    () => (lastBlob ? URL.createObjectURL(lastBlob) : null),
+    [lastBlob],
+  )
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
+  }, [previewUrl])
 
   const handleStartRecording = useCallback(async () => {
     try {
@@ -84,6 +95,11 @@ export default function RecordingCommandCenter({
         {/* Waveform */}
         <WaveformVisualizer isRecording={recorder.isRecording && !recorder.isPaused} />
 
+        {/* Recording preview playback */}
+        {lastBlob && !recorder.isRecording && previewUrl && (
+          <AudioPlayer audioUrl={previewUrl} fileName="Recording preview" />
+        )}
+
         {/* File upload error */}
         {fileUpload.error && (
           <p className="text-error text-body-sm bg-error-container/30 dark:bg-rose-950/40 p-2 rounded border border-error/20 dark:border-rose-900/50">
@@ -92,8 +108,8 @@ export default function RecordingCommandCenter({
         )}
 
         {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-          <div>
+        <div className="grid grid-cols-1 sm:flex sm:items-center sm:justify-between gap-3 pt-1">
+          <div className="flex sm:block justify-center">
             <input
               ref={fileUpload.fileInputRef as React.RefObject<HTMLInputElement>}
               type="file"
@@ -101,39 +117,40 @@ export default function RecordingCommandCenter({
               onChange={handleFileSelect}
               className="hidden"
             />
-            <Button variant="secondary" icon="upload_file" onClick={fileUpload.openPicker}>
+            <Button variant="secondary" icon="upload_file" onClick={fileUpload.openPicker} className="w-full sm:w-auto">
               Upload Audio
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3 w-full sm:w-auto">
             {recorder.isRecording ? (
               <>
                 <Button
                   variant="secondary"
                   icon={recorder.isPaused ? 'play_circle' : 'pause_circle'}
                   onClick={recorder.isPaused ? recorder.resume : recorder.pause}
+                  className="w-full sm:w-auto"
                 >
                   {recorder.isPaused ? 'Resume' : 'Pause'}
                 </Button>
-                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater}>
+                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater} className="w-full sm:w-auto">
                   <span className="hidden sm:inline">Save for Later</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
-                <Button variant="voice" icon="stop_circle" onClick={handleStopRecording}>
+                <Button variant="voice" icon="stop_circle" onClick={handleStopRecording} className="w-full sm:w-auto col-span-2 sm:col-span-1">
                   <span className="truncate">Generate SOAP Note</span>
                 </Button>
               </>
             ) : lastBlob ? (
               <>
-                <Button variant="secondary" icon="refresh" onClick={handleStartRecording}>
+                <Button variant="secondary" icon="refresh" onClick={handleStartRecording} className="w-full sm:w-auto">
                   New Recording
                 </Button>
-                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater}>
+                <Button variant="secondary" icon="bookmark_add" onClick={onSaveForLater} className="w-full sm:w-auto">
                   <span className="hidden sm:inline">Save for Later</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
-                <Button variant="voice" icon="description" onClick={() => {
+                <Button variant="voice" icon="description" className="w-full sm:w-auto col-span-2 sm:col-span-1" onClick={() => {
                   const file = new File([lastBlob], `recording-${Date.now()}.webm`, { type: lastBlob.type })
                   onRecordingComplete(file)
                 }}>
@@ -141,7 +158,7 @@ export default function RecordingCommandCenter({
                 </Button>
               </>
             ) : (
-              <Button variant="voice" icon="mic" onClick={handleStartRecording}>
+              <Button variant="voice" icon="mic" onClick={handleStartRecording} className="w-full sm:w-auto col-span-2 sm:col-span-1">
                 Start Recording
               </Button>
             )}

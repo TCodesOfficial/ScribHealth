@@ -38,7 +38,7 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="animated-gradient-bg antialiased h-screen flex flex-col font-body-md relative overflow-hidden transition-colors duration-500">
+    <main className="animated-gradient-bg antialiased h-dvh flex flex-col font-body-md relative overflow-hidden transition-colors duration-500">
       {/* Animated particles */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {particles.map((p, i) => (
@@ -67,20 +67,20 @@ export default function AuthPage() {
         <BrandPanel />
 
         {/* Right: Auth Form */}
-        <section className="lg:col-span-7 bg-transparent flex flex-col p-4 sm:p-6 md:p-8 lg:p-12 overflow-hidden">
+        <section className="lg:col-span-7 bg-transparent flex flex-col p-3 sm:p-5 md:p-6 lg:p-8 overflow-hidden">
           {/* Top bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 sm:pb-4 mb-3 sm:mb-4 border-b border-slate-200/30 dark:border-white/15 shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-slate-200/50 dark:bg-white/10 backdrop-blur-md flex items-center justify-center text-teal-600 dark:text-teal-300 border border-slate-300/50 dark:border-white/15">
-                <span className="material-symbols-outlined text-lg">local_hospital</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-200/30 dark:border-white/15 shrink-0">
+            <div className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-lg bg-slate-200/50 dark:bg-white/10 backdrop-blur-md flex items-center justify-center text-teal-600 dark:text-teal-300 border border-slate-300/50 dark:border-white/15">
+                <span className="material-symbols-outlined text-base">local_hospital</span>
               </div>
-              <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+              <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white">
                 MetroHealth Portal
               </span>
             </div>
-            <div className="flex items-center gap-2 sm:gap-2.5 ml-auto">
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
               <ThemeToggle />
-              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/25 backdrop-blur-md shadow-sm whitespace-nowrap">
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-400/25 backdrop-blur-md shadow-sm whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping" />
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 -ml-2.5" />
                 Secure Workspace
@@ -90,15 +90,15 @@ export default function AuthPage() {
 
           {/* Auth card */}
           <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
-            <div className="w-full max-w-sm bg-white dark:bg-slate-900/80 dark:backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/15 shadow-2xl p-6 sm:p-7 lg:p-8 relative max-h-full overflow-y-auto">
+            <div className="w-full max-w-sm bg-white dark:bg-slate-900/80 dark:backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/15 shadow-2xl p-5 sm:p-6 relative max-h-full overflow-y-auto custom-scrollbar">
               {/* Top accent */}
               <div className="absolute -top-px left-8 right-8 sm:left-10 sm:right-10 h-[2px] bg-gradient-to-r from-transparent via-teal-500 to-transparent" />
 
               {/* Tabs */}
-              <div className="p-1 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center mb-5">
+              <div className="p-1 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center mb-3">
                 <button
                   onClick={() => setActiveTab('signin')}
-                  className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  className={`flex-1 py-2 text-center rounded-lg text-[13px] font-semibold transition-all duration-200 ${
                     activeTab === 'signin'
                       ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
@@ -108,7 +108,7 @@ export default function AuthPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('signup')}
-                  className={`flex-1 py-2.5 text-center rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  className={`flex-1 py-2 text-center rounded-lg text-[13px] font-semibold transition-all duration-200 ${
                     activeTab === 'signup'
                       ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
@@ -128,8 +128,8 @@ export default function AuthPage() {
           </div>
 
           {/* Footer */}
-          <div className="pt-3 sm:pt-4 mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-white/70 shrink-0">
-            <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-white/5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 backdrop-blur-sm">
+          <div className="pt-2 mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-white/70 shrink-0">
+            <div className="flex items-center gap-1.5 bg-slate-100/80 dark:bg-white/5 px-2.5 py-1 rounded-full border border-slate-200 dark:border-white/10 backdrop-blur-sm">
               <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-sm">verified_user</span>
               <span className="font-medium text-slate-700 dark:text-white/90">
                 HIPAA Compliant &bull; 256-bit Encrypted

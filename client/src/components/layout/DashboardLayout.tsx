@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const closeSidebar = () => setSidebarOpen(false)
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-background dark:bg-slate-950 transition-colors duration-200">
+    <div className="h-dvh overflow-hidden flex flex-col bg-background dark:bg-slate-950 transition-colors duration-200">
       <TopNav onMenuToggle={toggleSidebar} onContextToggle={() => {}} />
 
       <div className="flex-1 flex overflow-hidden relative">

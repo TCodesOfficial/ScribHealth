@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import PatientCard from '@/components/patients/PatientCard'
 import PatientSummary from '@/components/patients/PatientSummary'
 import EditPatientModal from '@/components/patients/EditPatientModal'
+import ConfirmModal from '@/components/modals/ConfirmModal'
 import TranscriptFeed from '@/components/recording/TranscriptFeed'
 import SoapNoteEditor from '@/components/soap/SoapNoteEditor'
 import patientService from '@/services/patient.service'
@@ -20,6 +21,7 @@ export default function PatientsPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export default function PatientsPage() {
       try {
         const data = await patientService.getPatients()
         setPatients(data)
+        // Auto-select the most recent patient (list is ordered updatedAt desc)
+        if (data.length > 0) {
+          setActivePatientId((prev) => prev ?? data[0].id)
+        }
       } catch {
       } finally {
         setIsLoadingPatients(false)
@@ -90,18 +96,16 @@ export default function PatientsPage() {
 
   const handleDeletePatient = async () => {
     if (!activePatient) return
-    const confirmed = window.confirm(
-      `Delete ${activePatient.firstName} ${activePatient.lastName}? This cannot be undone.`,
-    )
-    if (!confirmed) return
     setIsDeleting(true)
     try {
       await patientService.deletePatient(activePatient.id)
       toast.success('Patient deleted successfully.')
-      setActivePatientId(null)
+      setIsConfirmOpen(false)
       setConsultations([])
       const data = await patientService.getPatients()
       setPatients(data)
+      // Fall back to the next most recent patient instead of the empty state
+      setActivePatientId(data.length > 0 ? data[0].id : null)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to delete patient.'
       toast.error(message)
@@ -140,16 +144,6 @@ export default function PatientsPage() {
             className="md:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setMobileSidebarOpen(false)}
           />
-        )}
-
-        {!mobileSidebarOpen && (
-          <button
-            onClick={() => setMobileSidebarOpen(true)}
-            className="md:hidden fixed top-16 left-2 z-40 p-2 rounded-lg bg-surface-container-high dark:bg-slate-800 border border-outline-variant dark:border-slate-700 shadow-lg text-on-surface dark:text-slate-200"
-            title="Open patient list"
-          >
-            <span className="material-symbols-outlined text-[20px]">people</span>
-          </button>
         )}
 
         <aside className={sidebarClasses}>
@@ -242,15 +236,24 @@ export default function PatientsPage() {
             <>
               {/* Patient header — always visible, edit/delete available even with no consultations */}
               {activePatient && (
-                <div className="flex items-center justify-between gap-2 px-4 py-2.5 bg-surface-container-low/30 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 shrink-0">
-                  <div className="min-w-0">
-                    <span className="block text-sm font-bold text-on-surface dark:text-white truncate">
-                      {activePatient.firstName} {activePatient.lastName}
-                    </span>
-                    <span className="block text-[11px] text-outline dark:text-slate-400">
-                      {activePatient.mrn && <span className="font-mono">MRN: {activePatient.mrn} · </span>}
-                      {activePatient._count?.consultations ?? 0} consultation(s)
-                    </span>
+                <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2.5 bg-surface-container-low/30 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 shrink-0">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <button
+                      onClick={() => setMobileSidebarOpen(true)}
+                      className="md:hidden p-1.5 rounded-lg bg-surface-container-high dark:bg-slate-800 border border-outline-variant dark:border-slate-700 text-on-surface dark:text-slate-200 shrink-0"
+                      title="Open patient list"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">people</span>
+                    </button>
+                    <div className="min-w-0">
+                      <span className="block text-sm font-bold text-on-surface dark:text-white truncate">
+                        {activePatient.firstName} {activePatient.lastName}
+                      </span>
+                      <span className="block text-[11px] text-outline dark:text-slate-400">
+                        {activePatient.mrn && <span className="font-mono">MRN: {activePatient.mrn} · </span>}
+                        {activePatient._count?.consultations ?? 0} consultation(s)
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
@@ -262,7 +265,7 @@ export default function PatientsPage() {
                     </button>
                     {(activePatient._count?.consultations ?? 0) === 0 && (
                       <button
-                        onClick={handleDeletePatient}
+                        onClick={() => setIsConfirmOpen(true)}
                         disabled={isDeleting}
                         className="px-2.5 py-1 rounded bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950 text-xs font-semibold flex items-center gap-1 transition-colors border border-red-200 dark:border-red-900 disabled:opacity-50"
                       >
@@ -274,6 +277,20 @@ export default function PatientsPage() {
                     )}
                   </div>
                 </div>
+              )}
+
+              {isConfirmOpen && activePatient && (
+                <ConfirmModal
+                  isOpen={isConfirmOpen}
+                  title="Delete patient"
+                  message={`Delete ${activePatient.firstName} ${activePatient.lastName}? This permanently removes the patient record and cannot be undone.`}
+                  confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
+                  cancelLabel="Cancel"
+                  danger
+                  loading={isDeleting}
+                  onConfirm={handleDeletePatient}
+                  onCancel={() => setIsConfirmOpen(false)}
+                />
               )}
 
               {isEditOpen && activePatient && (
@@ -351,6 +368,13 @@ export default function PatientsPage() {
               <div className="text-center">
                 <span className="material-symbols-outlined text-5xl text-outline dark:text-slate-500 block mb-3">person_search</span>
                 <p className="text-sm text-on-surface-variant dark:text-slate-400">Select a patient to view their consultations</p>
+                <button
+                  onClick={() => setMobileSidebarOpen(true)}
+                  className="md:hidden mt-4 px-4 py-2 rounded-lg bg-secondary dark:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5 mx-auto active:scale-95 transition-all shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[16px]">people</span>
+                  Browse Patients
+                </button>
               </div>
             </div>
           )}

@@ -29,18 +29,18 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
   return (
     <div id="form-signin">
-      <div className="mb-5">
-        <h2 className="text-xl sm:text-2xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
+      <div className="mb-3">
+        <h2 className="text-lg sm:text-xl font-bold font-headline-sm text-slate-900 dark:text-white tracking-tight">
           Welcome back
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-body-sm mt-1">
+        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-body-sm mt-0.5">
           Enter your clinical credentials to access your patient charts.
         </p>
       </div>
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-3" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Hospital Email
           </label>
           <Input
@@ -49,13 +49,14 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             placeholder="dr.sterling@metrohealth.org"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="py-2 text-[13px]"
             required
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Password
             </label>
             <a className="text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline" href="#">
@@ -69,6 +70,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="py-2 text-[13px]"
               required
             />
             <button
@@ -91,7 +93,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-2"
             />
-            <span className="text-sm text-slate-600 dark:text-slate-400">
+            <span className="text-[13px] text-slate-600 dark:text-slate-400">
               Remember this clinical workstation
             </span>
           </label>
