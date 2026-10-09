@@ -24,17 +24,7 @@ export default function PatientSummary({ consultation, onPatientUpdated }: Patie
 
   return (
     <div className="p-3.5 md:p-4 bg-surface-container-lowest dark:bg-slate-900 border-b border-outline-variant dark:border-slate-800 space-y-3 shrink-0 relative">
-      {/* Top Floating Recommended Ward Badge */}
-      {consultation.recommendedWard && (
-        <div className="flex justify-end mb-1 sm:absolute sm:top-3 sm:right-3 md:right-4 sm:mb-0 z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-sm animate-pulse">
-            <span className="material-symbols-outlined text-[16px]">local_hospital</span>
-            Recommended Ward: {consultation.recommendedWard}
-          </span>
-        </div>
-      )}
-
-      <div className="flex items-start justify-between gap-2 sm:pr-44">
+      <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-title-md md:text-headline-sm font-headline-sm font-bold text-on-surface dark:text-white">
@@ -50,6 +40,12 @@ export default function PatientSummary({ consultation, onPatientUpdated }: Patie
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-label-sm font-semibold bg-secondary-container/50 dark:bg-emerald-950/60 text-on-secondary-container dark:text-emerald-300 border border-secondary/30 dark:border-emerald-600/40">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary dark:bg-emerald-500" />
                 {consultation.Priority} Priority
+              </span>
+            )}
+            {consultation.recommendedWard && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-label-sm font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                <span className="material-symbols-outlined text-[12px]">local_hospital</span>
+                {consultation.recommendedWard}
               </span>
             )}
           </div>

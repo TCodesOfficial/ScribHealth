@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 
 export interface UpsertPatientDTO {
@@ -71,16 +71,13 @@ export class PatientService {
   async deletePatient(id: string, hospitalId: string) {
     const patient = await this.prisma.patient.findFirst({
       where: { id, hospitalId },
-      include: { _count: { select: { consultations: true } } },
+      select: { id: true },
     });
     if (!patient) {
       throw new NotFoundException("Patient not found");
     }
-    if (patient._count.consultations > 0) {
-      throw new BadRequestException(
-        "Cannot delete a patient that has consultations",
-      );
-    }
+    // PatientConsultation.patient has onDelete: Cascade in the schema, so the
+    // patient's consultations (and their audio) are removed with the patient.
     await this.prisma.patient.delete({ where: { id } });
     return { id: patient.id, deleted: true };
   }

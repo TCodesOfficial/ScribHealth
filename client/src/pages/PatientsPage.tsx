@@ -263,18 +263,16 @@ export default function PatientsPage() {
                       <span className="material-symbols-outlined text-[14px]">edit</span>
                       Edit
                     </button>
-                    {(activePatient._count?.consultations ?? 0) === 0 && (
-                      <button
-                        onClick={() => setIsConfirmOpen(true)}
-                        disabled={isDeleting}
-                        className="px-2.5 py-1 rounded bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950 text-xs font-semibold flex items-center gap-1 transition-colors border border-red-200 dark:border-red-900 disabled:opacity-50"
-                      >
-                        <span className="material-symbols-outlined text-[14px]">
-                          {isDeleting ? 'progress_activity' : 'delete'}
-                        </span>
-                        {isDeleting ? 'Deleting...' : 'Delete'}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setIsConfirmOpen(true)}
+                      disabled={isDeleting}
+                      className="px-2.5 py-1 rounded bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950 text-xs font-semibold flex items-center gap-1 transition-colors border border-red-200 dark:border-red-900 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">
+                        {isDeleting ? 'progress_activity' : 'delete'}
+                      </span>
+                      {isDeleting ? 'Deleting...' : 'Delete'}
+                    </button>
                   </div>
                 </div>
               )}
@@ -283,7 +281,11 @@ export default function PatientsPage() {
                 <ConfirmModal
                   isOpen={isConfirmOpen}
                   title="Delete patient"
-                  message={`Delete ${activePatient.firstName} ${activePatient.lastName}? This permanently removes the patient record and cannot be undone.`}
+                  message={
+                    (activePatient._count?.consultations ?? 0) > 0
+                      ? `Delete ${activePatient.firstName} ${activePatient.lastName}? This will also permanently delete their ${(activePatient._count?.consultations ?? 0)} consultation(s) and recordings. This cannot be undone.`
+                      : `Delete ${activePatient.firstName} ${activePatient.lastName}? This permanently removes the patient record and cannot be undone.`
+                  }
                   confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
                   cancelLabel="Cancel"
                   danger
