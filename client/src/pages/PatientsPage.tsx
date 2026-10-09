@@ -2,9 +2,11 @@ import { useState, useEffect, useMemo } from 'react'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import PatientCard from '@/components/patients/PatientCard'
 import PatientSummary from '@/components/patients/PatientSummary'
+import EditPatientModal from '@/components/patients/EditPatientModal'
 import TranscriptFeed from '@/components/recording/TranscriptFeed'
 import SoapNoteEditor from '@/components/soap/SoapNoteEditor'
 import patientService from '@/services/patient.service'
+import toast from 'react-hot-toast'
 import type { Patient, PatientConsultation } from '@/types'
 
 export default function PatientsPage() {
@@ -17,6 +19,8 @@ export default function PatientsPage() {
   const [search, setSearch] = useState('')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -65,6 +69,46 @@ export default function PatientsPage() {
   }, [patients, search])
 
   const activeConsultation = consultations[0] || null
+
+  const activePatient = useMemo(
+    () => patients.find((p) => p.id === activePatientId) || null,
+    [patients, activePatientId],
+  )
+
+  const refreshPatientData = async () => {
+    try {
+      const data = await patientService.getPatients()
+      setPatients(data)
+      if (activePatientId) {
+        const patient = await patientService.getPatientById(activePatientId)
+        setConsultations(patient.consultations || [])
+      }
+    } catch {
+      // silent
+    }
+  }
+
+  const handleDeletePatient = async () => {
+    if (!activePatient) return
+    const confirmed = window.confirm(
+      `Delete ${activePatient.firstName} ${activePatient.lastName}? This cannot be undone.`,
+    )
+    if (!confirmed) return
+    setIsDeleting(true)
+    try {
+      await patientService.deletePatient(activePatient.id)
+      toast.success('Patient deleted successfully.')
+      setActivePatientId(null)
+      setConsultations([])
+      const data = await patientService.getPatients()
+      setPatients(data)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to delete patient.'
+      toast.error(message)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   const handleSelectPatient = (id: string) => {
     setActivePatientId(id)
@@ -196,6 +240,50 @@ export default function PatientsPage() {
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           {activePatientId ? (
             <>
+              {/* Patient header — always visible, edit/delete available even with no consultations */}
+              {activePatient && (
+                <div className="flex items-center justify-between gap-2 px-4 py-2.5 bg-surface-container-low/30 dark:bg-slate-800/50 border-b border-outline-variant dark:border-slate-800 shrink-0">
+                  <div className="min-w-0">
+                    <span className="block text-sm font-bold text-on-surface dark:text-white truncate">
+                      {activePatient.firstName} {activePatient.lastName}
+                    </span>
+                    <span className="block text-[11px] text-outline dark:text-slate-400">
+                      {activePatient.mrn && <span className="font-mono">MRN: {activePatient.mrn} · </span>}
+                      {activePatient._count?.consultations ?? 0} consultation(s)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setIsEditOpen(true)}
+                      className="px-2.5 py-1 rounded bg-surface-container-high dark:bg-slate-800 text-on-surface dark:text-slate-200 hover:bg-surface-container-highest dark:hover:bg-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors border border-outline-variant/60 dark:border-slate-700"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">edit</span>
+                      Edit
+                    </button>
+                    {(activePatient._count?.consultations ?? 0) === 0 && (
+                      <button
+                        onClick={handleDeletePatient}
+                        disabled={isDeleting}
+                        className="px-2.5 py-1 rounded bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950 text-xs font-semibold flex items-center gap-1 transition-colors border border-red-200 dark:border-red-900 disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {isDeleting ? 'progress_activity' : 'delete'}
+                        </span>
+                        {isDeleting ? 'Deleting...' : 'Delete'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {isEditOpen && activePatient && (
+                <EditPatientModal
+                  patient={activePatient}
+                  onClose={() => setIsEditOpen(false)}
+                  onUpdated={refreshPatientData}
+                />
+              )}
+
               <div className="flex items-center border-b border-outline-variant dark:border-slate-800 bg-surface-container-low/30 dark:bg-slate-800/50 shrink-0">
                 <button onClick={() => setActiveTab('transcript')} className={tabButtonClass('transcript')}>
                   <span className="material-symbols-outlined text-[14px] mr-1 align-middle">subtitles</span>
@@ -226,16 +314,7 @@ export default function PatientsPage() {
                       <>
                         <PatientSummary
                           consultation={activeConsultation}
-                          onPatientUpdated={async () => {
-                            try {
-                              const data = await patientService.getPatients()
-                              setPatients(data)
-                              if (activePatientId) {
-                                const patient = await patientService.getPatientById(activePatientId)
-                                setConsultations(patient.consultations || [])
-                              }
-                            } catch {}
-                          }}
+                          onPatientUpdated={refreshPatientData}
                         />
                         <div className="flex-1 p-4">
                           <TranscriptFeed rawTranscript={activeConsultation.rawTranscript} consultationId={activeConsultation.id} />

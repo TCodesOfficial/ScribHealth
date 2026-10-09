@@ -21,6 +21,11 @@ const patientService = {
     const response = await apiClient.put<Patient>(`/patient/${id}`, data)
     return response.data
   },
+
+  async deletePatient(id: string): Promise<{ id: string; deleted: boolean }> {
+    const response = await apiClient.delete<{ id: string; deleted: boolean }>(`/patient/${id}`)
+    return response.data
+  },
 }
 
 export default patientService

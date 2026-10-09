@@ -89,8 +89,8 @@ export default function AuthPage() {
           </div>
 
           {/* Auth card */}
-          <div className="flex-1 flex items-center justify-center min-h-0">
-            <div className="w-full max-w-sm bg-white dark:bg-slate-900/80 dark:backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/15 shadow-2xl p-6 sm:p-7 lg:p-8 relative max-h-[calc(100vh-10rem)] overflow-y-auto">
+          <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+            <div className="w-full max-w-sm bg-white dark:bg-slate-900/80 dark:backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/15 shadow-2xl p-6 sm:p-7 lg:p-8 relative max-h-full overflow-y-auto">
               {/* Top accent */}
               <div className="absolute -top-px left-8 right-8 sm:left-10 sm:right-10 h-[2px] bg-gradient-to-r from-transparent via-teal-500 to-transparent" />
 
