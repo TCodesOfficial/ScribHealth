@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -45,5 +46,10 @@ export class PatientController {
     @Body() body: UpsertPatientDTO,
   ) {
     return this.patientService.updatePatient(id, user.id, body);
+  }
+
+  @Delete(":id")
+  async deletePatient(@Param("id") id: string, @User() user: { id: string }) {
+    return this.patientService.deletePatient(id, user.id);
   }
 }

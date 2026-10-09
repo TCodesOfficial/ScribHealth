@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 
 export interface UpsertPatientDTO {
@@ -66,6 +66,23 @@ export class PatientService {
         ...(data.phone !== undefined && { phone: data.phone }),
       },
     });
+  }
+
+  async deletePatient(id: string, hospitalId: string) {
+    const patient = await this.prisma.patient.findFirst({
+      where: { id, hospitalId },
+      include: { _count: { select: { consultations: true } } },
+    });
+    if (!patient) {
+      throw new NotFoundException("Patient not found");
+    }
+    if (patient._count.consultations > 0) {
+      throw new BadRequestException(
+        "Cannot delete a patient that has consultations",
+      );
+    }
+    await this.prisma.patient.delete({ where: { id } });
+    return { id: patient.id, deleted: true };
   }
 
   async searchPatients(hospitalId: string, query: string) {

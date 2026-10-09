@@ -1,5 +1,6 @@
 ﻿import {
   BadGatewayException,
+  BadRequestException,
   InternalServerErrorException,
   Injectable,
   Logger,
@@ -133,8 +134,7 @@ Rules:
   }
 
   private async uploadToIntron(
-    form: FormData,
-    headers: Record<string, string>,
+    buildRequest: () => { form: FormData; headers: Record<string, string> },
     maxRetries = 4,
     retryDelayMs = 1500,
   ): Promise<IntronTranscriptionResponse> {
@@ -142,19 +142,27 @@ Rules:
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         this.logger.log(`Intron upload attempt ${attempt}/${maxRetries}`);
+        // FormData is a single-use stream: build a fresh instance (and its
+        // multipart headers/boundary) for every attempt or retries re-send a
+        // spent body and stall until timeout.
+        const { form, headers } = buildRequest();
         const response = await axios.post<IntronTranscriptionResponse>(
           this.intronApiUrl,
           form,
-          { headers, timeout: 30000 },
+          { headers, timeout: 60000 },
         );
         return response.data;
       } catch (error) {
         lastError = error;
         const retryable = this.isRetryableError(error);
         if (attempt < maxRetries && retryable) {
-          const msg = axios.isAxiosError(error) ? error.message : String(error);
+          const detail = axios.isAxiosError(error)
+            ? error.response?.status
+              ? `HTTP ${error.response.status}`
+              : error.code || error.message
+            : String(error);
           this.logger.warn(
-            `Intron attempt ${attempt}/${maxRetries} failed (${msg}), retrying in ${retryDelayMs}ms...`,
+            `Intron attempt ${attempt}/${maxRetries} failed (${detail}), retrying in ${retryDelayMs}ms...`,
           );
           await new Promise((r) => setTimeout(r, retryDelayMs));
         } else if (!retryable) {
@@ -177,20 +185,30 @@ Rules:
       );
     }
 
-    const form = new FormData();
-    form.append("audio_file_name", originalName);
-    form.append("audio_file_blob", fileBuffer, {
-      filename: originalName,
-      contentType: mimeType,
-    });
-    form.append("use_category", "file_category_telehealth");
-    form.append("use_language_asr_input", "en");
+    // Strip codec parameters (e.g. "audio/webm;codecs=opus" -> "audio/webm"):
+    // Intron's docs only show plain mime types for the multipart part.
+    const normalizedMime = mimeType.split(";")[0].trim() || "application/octet-stream";
+
+    const buildRequest = () => {
+      const form = new FormData();
+      form.append("audio_file_name", originalName);
+      form.append("audio_file_blob", fileBuffer, {
+        filename: originalName,
+        contentType: normalizedMime,
+      });
+      form.append("use_category", "file_category_telehealth");
+      form.append("use_language_asr_input", "en");
+      return {
+        form,
+        headers: {
+          ...form.getHeaders(),
+          Authorization: `Bearer ${intronApiKey}`,
+        },
+      };
+    };
 
     try {
-      const data = await this.uploadToIntron(form, {
-        ...form.getHeaders(),
-        Authorization: `Bearer ${intronApiKey}`,
-      });
+      const data = await this.uploadToIntron(buildRequest);
 
       const status = data.data.processing_status;
       const fileId = data.data.file_id || "unknown-file-id";
@@ -213,7 +231,10 @@ Rules:
       if (error instanceof BadGatewayException) throw error;
 
       if (axios.isAxiosError(error)) {
-        const detail = error.response?.data?.message || error.message;
+        const httpStatus = error.response?.status
+          ? ` (HTTP ${error.response.status})`
+          : "";
+        const detail = (error.response?.data?.message || error.message) + httpStatus;
         this.logger.error(`Transcription API error: ${detail}`);
         if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
           throw new BadGatewayException(
@@ -349,14 +370,14 @@ Rules:
     userId: string,
     patientData?: PatientData,
   ) {
-    const patient = await this.patientService.upsertPatient(userId, {
-      mrn: patientData?.mrn,
-      firstName: patientData?.firstName,
-      lastName: patientData?.lastName,
-      gender: patientData?.gender,
-      dateOfBirth: patientData?.dateOfBirth,
-      phone: patientData?.phone,
-    });
+    if (!fileBuffer || fileBuffer.length === 0) {
+      throw new BadRequestException(
+        "The uploaded audio file is empty. Please record again.",
+      );
+    }
+    this.logger.log(
+      `Processing audio: name=${originalName}, mime=${mimeType}, bytes=${fileBuffer.length}`,
+    );
 
     const result = await this.transcribeAudio(
       fileBuffer,
@@ -368,6 +389,9 @@ Rules:
     const fileId = result.fileId;
 
     if (!transcript || transcript.trim().length === 0) {
+      this.logger.warn(
+        `Empty transcript from Intron (fileId=${fileId}, bytes=${fileBuffer.length}, mime=${mimeType})`,
+      );
       throw new UnprocessableEntityException(
         "No speech detected in the audio file",
       );
@@ -379,6 +403,17 @@ Rules:
     console.log('SAVING CONSULTATION - objective:', extraction.objective?.substring(0, 100));
     console.log('SAVING CONSULTATION - assessment:', extraction.assessment?.substring(0, 100));
     console.log('SAVING CONSULTATION - plan:', extraction.plan?.substring(0, 100));
+
+    // Upsert the patient only after transcription + extraction succeed so a
+    // failed run never leaves orphan WALKIN-* patients with no consultations.
+    const patient = await this.patientService.upsertPatient(userId, {
+      mrn: patientData?.mrn,
+      firstName: patientData?.firstName,
+      lastName: patientData?.lastName,
+      gender: patientData?.gender,
+      dateOfBirth: patientData?.dateOfBirth,
+      phone: patientData?.phone,
+    });
 
     const consultation = await this.prisma.patientConsultation.create({
       data: {
