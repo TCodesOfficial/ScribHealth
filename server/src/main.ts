@@ -3,10 +3,11 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module.js";
 import { getAllowedOrigins } from "./util/allowed-origins.js";
+import { isProductionEnv } from "./util/env.js";
 
 const port = process.env.PORT;
 const clientPrefix = process.env.CLIENT_PREFIX as string;
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = isProductionEnv();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -105,6 +105,9 @@ Rules:
 - objective: Focus on what the clinician observes (examination findings, vitals, tests)
 - assessment: Clinical reasoning and diagnosis
 - plan: Actionable next steps (medications, referrals, lifestyle advice, follow-up)
+- Be concise and telegraphic: write each of subjective/objective/assessment/plan as at most 4 short bullet points (start each line with "- "), each bullet no longer than about 12 words
+- No filler, no repetition between sections, no narrative prose, no greetings or closing remarks
+- If a section has nothing clinically relevant in the transcript, return an empty string for it
 - icd10Codes: Use ICD-10-CM codes. Include as many as clinically appropriate.
 - Priority: URGENT = life-threatening or needs immediate intervention, NORMAL = standard care, LOW = routine/follow-up
 - Synthesize appropriate clinical findings, objective examination, assessment, and plan based on standard of care for the reported symptoms
@@ -177,7 +180,7 @@ Rules:
     fileBuffer: Buffer,
     mimeType: string,
     originalName: string,
-  ): Promise<{ transcript: string; fileId: string }> {
+  ): Promise<{ transcript: string; fileId: string; durationSeconds?: number }> {
     const intronApiKey = process.env.INTRON_API_KEY;
     if (!intronApiKey) {
       throw new InternalServerErrorException(
@@ -214,7 +217,11 @@ Rules:
       const fileId = data.data.file_id || "unknown-file-id";
 
       if (status === "FILE_TRANSCRIBED") {
-        return { transcript: data.data.audio_transcript, fileId };
+        return {
+          transcript: data.data.audio_transcript,
+          fileId,
+          durationSeconds: data.data.processed_audio_duration_in_seconds,
+        };
       }
 
       if (status === "FILE_PROCESSING_FAILED") {
@@ -225,8 +232,8 @@ Rules:
       }
 
       this.logger.log(`File queued (status: ${status}), polling for result...`);
-      const transcript = await this.pollIntronStatus(fileId, intronApiKey);
-      return { transcript, fileId };
+      const poll = await this.pollIntronStatus(fileId, intronApiKey);
+      return { transcript: poll.transcript, fileId, durationSeconds: poll.durationSeconds };
     } catch (error) {
       if (error instanceof BadGatewayException) throw error;
 
@@ -255,7 +262,7 @@ Rules:
     apiKey: string,
     maxRetries = 60,
     intervalMs = 5000,
-  ): Promise<string> {
+  ): Promise<{ transcript: string; durationSeconds?: number }> {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
 
@@ -272,7 +279,10 @@ Rules:
         this.logger.log(`Intron poll attempt ${attempt + 1}/${maxRetries}: ${status}`);
 
         if (status === "FILE_TRANSCRIBED") {
-          return response.data.data.audio_transcript;
+          return {
+            transcript: response.data.data.audio_transcript,
+            durationSeconds: response.data.data.processed_audio_duration_in_seconds,
+          };
         }
 
         if (status === "FILE_PROCESSING_FAILED") {
@@ -387,22 +397,24 @@ Rules:
 
     const transcript = result.transcript;
     const fileId = result.fileId;
+    const duration = result.durationSeconds;
 
     if (!transcript || transcript.trim().length === 0) {
       this.logger.warn(
-        `Empty transcript from Intron (fileId=${fileId}, bytes=${fileBuffer.length}, mime=${mimeType})`,
+        `Empty transcript from Intron (fileId=${fileId}, bytes=${fileBuffer.length}, mime=${mimeType}, duration=${duration ?? "unknown"}s)`,
       );
       throw new UnprocessableEntityException(
-        "No speech detected in the audio file",
+        duration !== undefined
+          ? `No speech detected in the audio file (processed ${duration}s of audio — check the microphone input)`
+          : "No speech detected in the audio file",
       );
     }
 
-    const extraction = await this.extractClinicalData(transcript);
+    this.logger.log(
+      `Transcription OK (fileId=${fileId}, duration=${duration ?? "unknown"}s, transcriptChars=${transcript.trim().length})`,
+    );
 
-    console.log('SAVING CONSULTATION - subjective:', extraction.subjective?.substring(0, 100));
-    console.log('SAVING CONSULTATION - objective:', extraction.objective?.substring(0, 100));
-    console.log('SAVING CONSULTATION - assessment:', extraction.assessment?.substring(0, 100));
-    console.log('SAVING CONSULTATION - plan:', extraction.plan?.substring(0, 100));
+    const extraction = await this.extractClinicalData(transcript);
 
     // Upsert the patient only after transcription + extraction succeed so a
     // failed run never leaves orphan WALKIN-* patients with no consultations.
