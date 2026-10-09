@@ -113,7 +113,7 @@ export const getAuthConfig = (prismaInstance: PrismaClient) => betterAuth({
   // In production the SPA (e.g. *.vercel.app) calls this API (e.g. *.onrender.com)
   // from a different site, so the session cookie must be SameSite=None; Secure to
   // be sent on cross-origin XHR. Localhost is same-site, so dev keeps default Lax.
-  ...(process.env.NODE_ENV === "production"
+  ...(process.env.NODE_ENV === "PRODUCTION"
     ? {
         advanced: {
           useSecureCookies: true,
